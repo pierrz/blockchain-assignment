@@ -1,4 +1,8 @@
-import { clickhouse } from './clickhouseClient';
+// Transaction Count endpoint: 
+//  -> Provide the number of transactions made or received from a given address.
+
+
+import { clickhouse } from '../dbClient/clickhouseClient';
 
 /**
  * Get the total count of transactions for a given address.

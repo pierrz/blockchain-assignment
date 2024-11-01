@@ -1,4 +1,8 @@
-import { clickhouse } from './clickhouseClient';
+// Transaction List Sorted by Value: 
+//  --> Return transactions sorted by value (appropriately paginated),
+//  i.e. the amount of $AVAX transferred.
+
+import { clickhouse } from '../dbClient/clickhouseClient';
 
 /**
  * Get a paginated list of transactions for a given address, sorted by value.

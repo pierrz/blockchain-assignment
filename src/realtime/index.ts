@@ -1,6 +1,6 @@
 import { createPublicClient, http, parseAbiItem } from 'viem';
 import { avalanche } from 'viem/chains';
-import { clickhouse } from './clickhouseClient';
+import { clickhouse } from '../dbClient/clickhouseClient';
 // import { createClient } from 'clickhouse';
 // import dotenv from 'dotenv';
 

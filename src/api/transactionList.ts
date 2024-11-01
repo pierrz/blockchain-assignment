@@ -1,4 +1,9 @@
-import { clickhouse } from './clickhouseClient';
+// Transaction List endpoint: 
+//  -> Return all transactions (appropriately paginated) made or received from a given address,
+//  sorted by blockNumber and transactionIndex.
+
+
+import { clickhouse } from '../dbClient/clickhouseClient';
 
 /**
  * Get a paginated list of transactions for a given address, sorted by blockNumber and transactionIndex.
