@@ -1,0 +1,11 @@
+<clickhouse>
+    <startup_scripts>
+        <scripts>
+            <query>CREATE ROLE OR REPLACE test_role</query>
+        </scripts>
+        <scripts>
+            <query>CREATE TABLE TestTable (id UInt64) ENGINE=TinyLog</query>
+            <condition>SELECT 1;</condition>
+        </scripts>
+    </startup_scripts>
+</clickhouse>

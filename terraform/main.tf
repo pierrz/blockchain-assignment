@@ -18,31 +18,47 @@ resource "null_resource" "install_clickhouse" {
   provisioner "local-exec" {
     command = <<-EOT
       #!/bin/bash
-      apt-get update
-      apt-get install -y apt-transport-https ca-certificates dirmngr
-      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 8919F6BD2B48D754
-      echo "deb https://packages.clickhouse.com/deb stable main" | tee /etc/apt/sources.list.d/clickhouse.list
-      apt-get update
-      DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version}
+
+      # Install
+      sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+      curl -fsSL 'https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key' | sudo gpg --dearmor -o /usr/share/keyrings/clickhouse-keyring.gpg
+      echo "deb [signed-by=/usr/share/keyrings/clickhouse-keyring.gpg] https://packages.clickhouse.com/deb stable main" | sudo tee \
+      /etc/apt/sources.list.d/clickhouse.list
+      sudo apt-get update
+      # DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version}
+      sudo apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version} clickhouse-keeper=${local.clickhouse_version}
       mkdir -p ${local.data_directory}
       chown -R clickhouse:clickhouse ${local.data_directory}
-      systemctl start clickhouse-server
-      systemctl enable clickhouse-server
+
+      # Configuration
+      cp db/startup_scripts.xml /etc/clickhouse-server/config.d/startup_scripts.xml
+
+      # CLickHouse Server
+      sudo service clickhouse-server start
+      sudo service clickhouse-server enable
+      # systemctl start clickhouse-server
+      # systemctl enable clickhouse-server
+
+      # CLickHouse Keeper
+      sudo systemctl enable clickhouse-keeper
+      sudo systemctl start clickhouse-keeper
+      # sudo systemctl status clickhouse-keeper
+
     EOT
   }
 }
 
-resource "null_resource" "configure_clickhouse" {
-  depends_on = [null_resource.install_clickhouse]
+# resource "null_resource" "configure_clickhouse" {
+#   depends_on = [null_resource.install_clickhouse]
 
-  provisioner "local-exec" {
-    command = <<-EOT
-      cd db
-      chmod +x ./setup.sh
-      ./setup.sh
-    EOT
-  }
-}
+#   provisioner "local-exec" {
+#     command = <<-EOT
+#       cd db
+#       chmod +x ./setup.sh
+#       ./setup.sh
+#     EOT
+#   }
+# }
 
 # # Data import configuration
 # resource "null_resource" "import_data" {
