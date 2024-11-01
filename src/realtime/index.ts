@@ -1,17 +1,18 @@
 import { createPublicClient, http, parseAbiItem } from 'viem';
 import { avalanche } from 'viem/chains';
-import { createClient } from 'clickhouse';
-import dotenv from 'dotenv';
+import { clickhouse } from './clickhouseClient';
+// import { createClient } from 'clickhouse';
+// import dotenv from 'dotenv';
 
-dotenv.config();
+// dotenv.config();
 
-// Initialize ClickHouse client
-const clickhouse = createClient({
-  host: process.env.CLICKHOUSE_HOST || 'http://localhost:8123',
-  username: process.env.CLICKHOUSE_USER || 'default',
-  password: process.env.CLICKHOUSE_PASSWORD || 'clickhouse',
-  database: process.env.CLICKHOUSE_DB || 'blockchain'
-});
+// // Initialize ClickHouse client
+// const clickhouse = createClient({
+//   host: process.env.CLICKHOUSE_HOST || 'http://localhost:8123',
+//   username: process.env.CLICKHOUSE_USER || 'default',
+//   password: process.env.CLICKHOUSE_PASSWORD || 'clickhouse',
+//   database: process.env.CLICKHOUSE_DB || 'blockchain'
+// });
 
 // Initialize Viem client for Avalanche C-Chain
 const client = createPublicClient({

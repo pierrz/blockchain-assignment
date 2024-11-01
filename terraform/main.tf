@@ -37,6 +37,7 @@ resource "null_resource" "configure_clickhouse" {
 
   provisioner "local-exec" {
     command = <<-EOT
+      cd db
       chmod +x ./setup.sh
       ./setup.sh
     EOT
