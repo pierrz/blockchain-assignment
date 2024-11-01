@@ -14,7 +14,8 @@ variable "clickhouse_password" {
 variable "data_path" {
   description = "Path to the transactions CSV file"
   type        = string
-  default     = "/data/43114_txs.csv"
+#   default     = "/data/43114_txs.csv"
+  default     = "./data"
 }
 
 variable "settings" {

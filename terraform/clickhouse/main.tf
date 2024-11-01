@@ -10,6 +10,7 @@ terraform {
 locals {
   clickhouse_version = "23.8"
   database_name     = "blockchain"
+  table_name     = "transactions"
   data_directory    = "/var/lib/clickhouse"
 }
 
@@ -17,6 +18,7 @@ resource "null_resource" "install_clickhouse" {
   provisioner "local-exec" {
     command = <<-EOT
       #!/bin/bash
+      apt-get update
       apt-get install -y apt-transport-https ca-certificates dirmngr
       apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 8919F6BD2B48D754
       echo "deb https://packages.clickhouse.com/deb stable main" | tee /etc/apt/sources.list.d/clickhouse.list
@@ -35,67 +37,26 @@ resource "null_resource" "configure_clickhouse" {
 
   provisioner "local-exec" {
     command = <<-EOT
-      clickhouse-client -q "
-        CREATE DATABASE IF NOT EXISTS ${local.database_name};
-        
-        CREATE TABLE IF NOT EXISTS ${local.database_name}.transactions (
-          timestamp DateTime,
-          status Bool,
-          block_number UInt64,
-          tx_index UInt32,
-          from_address String,
-          to_address String,
-          value Decimal256(18),
-          gas_limit UInt64,
-          gas_used UInt64,
-          gas_price Decimal128(18)
-        ) ENGINE = MergeTree()
-        PARTITION BY toYYYYMM(timestamp)
-        ORDER BY (block_number, tx_index)
-        SETTINGS index_granularity = 8192;
-
-        -- Create materialized view for transaction analytics
-        CREATE MATERIALIZED VIEW IF NOT EXISTS ${local.database_name}.tx_analytics
-        ENGINE = SummaryState
-        AS SELECT
-          toDate(timestamp) as date,
-          count() as tx_count,
-          sum(value) as total_value,
-          avg(gas_price) as avg_gas_price,
-          sum(gas_used) as total_gas_used
-        FROM ${local.database_name}.transactions
-        GROUP BY date;
-
-        -- Create materialized view for address analytics
-        CREATE MATERIALIZED VIEW IF NOT EXISTS ${local.database_name}.address_activity
-        ENGINE = SummaryState
-        AS SELECT
-          from_address as address,
-          count() as tx_count,
-          sum(value) as total_sent,
-          avg(gas_price) as avg_gas_price,
-          sum(gas_used * gas_price) as total_gas_cost
-        FROM ${local.database_name}.transactions
-        GROUP BY from_address;
-      "
+      chmod +x ./setup.sh
+      ./setup.sh
     EOT
   }
 }
 
-# Data import configuration
-resource "null_resource" "import_data" {
-  depends_on = [null_resource.configure_clickhouse]
+# # Data import configuration
+# resource "null_resource" "import_data" {
+#   depends_on = [null_resource.configure_clickhouse]
 
-  provisioner "local-exec" {
-    command = <<-EOT
-      clickhouse-client -q "
-        INSERT INTO ${local.database_name}.transactions
-        FROM INFILE '/data/43114_txs.csv'
-        FORMAT CSV;
-      "
-    EOT
-  }
-}
+#   provisioner "local-exec" {
+#     command = <<-EOT
+#       clickhouse-client -q "
+#         INSERT INTO ${local.database_name}.${local.table_name}
+#         FROM INFILE '/data/43114_txs.csv'
+#         FORMAT CSV;
+#       "
+#     EOT
+#   }
+# }
 
 output "clickhouse_connection" {
   value = {
