@@ -1,28 +1,26 @@
-import { createReadStream, rename, mkdir } from 'fs';
+import { createReadStream } from 'fs';
 import { readdir } from 'fs/promises';
-import { join, dirname, basename } from 'path';
+import { join } from 'path';
 import { createGunzip } from 'zlib';
 import { parse } from 'csv-parse';
 import { pipeline } from 'stream/promises';
-// import type { Transform } from 'stream';
 import { clickhouse } from '../dbClient/clickhouseClient.js';
+import { moveFile } from './utils.js';
 import { Transform } from 'stream';
+import { dataDir, processedDir, failedDir } from '../config.js';
 
-const dataDir = '/srv/data',
-    processedDir = join(dataDir, 'processed'),
-    failedDir = join(dataDir, 'failed');
 
 interface Transaction {
     timestamp: string;
     status: boolean;
-    block_number: bigint;
+    block_number: string;  // Changed from bigint to string
     tx_index: number;
     from_address: string;
     to_address: string;
-    value: bigint;
-    gas_limit: bigint;
-    gas_used: bigint;
-    gas_price: bigint;
+    value: string;
+    gas_limit: string;    // Changed from bigint to string
+    gas_used: string;     // Changed from bigint to string
+    gas_price: string;    // Changed from bigint to string
 }
 
 interface CSVRecord {
@@ -60,18 +58,20 @@ export async function startImport() {
                     objectMode: true,
                     async transform(record: CSVRecord, encoding, callback) {
                         try {
+                            // Some blockchain numeric fields exceed JavaScript's Number.MAX_SAFE_INTEGER
+                            // and are converted to string
                             const transaction: Transaction = {
                                 timestamp: record.timestamp,
                                 // status: record.status === 'true',
                                 status: Boolean(record.status),
-                                block_number: BigInt(record.block_number),
+                                block_number: BigInt(record.block_number).toString(), // Convert to string
                                 tx_index: parseInt(record.tx_index, 10),
                                 from_address: record.from,
                                 to_address: record.to,
-                                value: BigInt(record.value),
-                                gas_limit: BigInt(record.gas_limit),
-                                gas_used: BigInt(record.gas_used),
-                                gas_price: BigInt(record.gas_price)
+                                value: record.value,
+                                gas_limit: BigInt(record.gas_limit).toString(),  // Convert to string
+                                gas_used: BigInt(record.gas_used).toString(),    // Convert to string
+                                gas_price: BigInt(record.gas_price).toString()
                             };
     
                             batch.push(transaction);
@@ -102,28 +102,29 @@ export async function startImport() {
         }
     }
 
-    async function moveFile(sourcePath: string, destinationDir: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-          const destinationPath = join(destinationDir, basename(sourcePath));
-      
-        mkdir(destinationDir, { recursive: true }, (err) => {
-            if (err) {
-              reject(err);
-            } else {
-              rename(sourcePath, destinationPath, (err: any) => {
-                if (err) {
-                  reject(err);
-                } else {
-                  resolve();
-                }
-              });
-            }
-          });
-        });
-      }
+    // async function moveFile(sourcePath: string, destinationDir: string): Promise<void> {
+    //     const destinationPath = join(destinationDir, basename(sourcePath));
+    //     try {
+    //         await new Promise<void>((resolve, reject) => {
+    //             mkdir(destinationDir, { recursive: true }, (err) => {
+    //                 if (err) reject(err);
+    //                 else resolve();
+    //             });
+    //         });
+            
+    //         await new Promise<void>((resolve, reject) => {
+    //             rename(sourcePath, destinationPath, (err) => {
+    //                 if (err) reject(err);
+    //                 else resolve();
+    //             });
+    //         });
+    //     } catch (error) {
+    //         console.error('Error moving file:', error);
+    //         throw error;
+    //     }
+    // }
       
     async function importTransactions(): Promise<void> {
-        
         let totalProcessed = 0;
 
         try {
@@ -141,9 +142,6 @@ export async function startImport() {
 
                 try {
                     const transactions = await processFile(filePath);
-                    const valuesString = transactions
-                            .map((transaction) => `('${transaction.timestamp}', ${transaction.status ? 1 : 0}, ${transaction.block_number}, ${transaction.tx_index}, '${transaction.from_address}', '${transaction.to_address}', '${transaction.value}', ${transaction.gas_limit}, ${transaction.gas_used}, '${transaction.gas_price}')`)
-                            .join(',');
                     
                     if (transactions.length > 0) {
                         try {
@@ -153,30 +151,42 @@ export async function startImport() {
                                 format: 'JSONEachRow'
                             });
                             console.log(`Successfully inserted ${transactions.length} transactions`);
+                            
+                            totalProcessed += transactions.length;
+                            console.log(`Inserted ${transactions.length} transactions from ${file}`);
+
+                            try {
+                                await moveFile(filePath, processedDir);
+                                console.log("File moved to the 'processed' directory.");
+                            } catch (moveError) {
+                                console.error('Error moving file to processed directory:', moveError);
+                            }
                         } catch (error) {
                             console.error('Error inserting transactions:', error);
+                            try {
+                                await moveFile(filePath, failedDir);
+                                console.log("File moved to the 'failed' directory due to insertion error.");
+                            } catch (moveError) {
+                                console.error('Error moving file to failed directory:', moveError);
+                            }
                         }
-                        totalProcessed += transactions.length;
-                        console.log(`Inserted ${transactions.length} transactions from ${file}`);
-
-                        moveFile(filePath, processedDir)
-                            .then(() => console.log("File moved to the 'processed' directory."))
-                            .catch((err) => console.error('Error moving file:', err));
                     }
 
                 } catch (error) {
                     console.error(`Failed to process file ${file}:`, error);
-                    moveFile(filePath, failedDir)
-                        .then(() => console.log("File moved to the 'failed' directory."))
-                        .catch((err) => console.error('Error moving file:', err));
+                    try {
+                        await moveFile(filePath, failedDir);
+                        console.log("File moved to the 'failed' directory due to processing error.");
+                    } catch (moveError) {
+                        console.error('Error moving file to failed directory:', moveError);
+                    }
                     continue;
                 }
             }
             
-            if (totalProcessed == 0) {
+            if (totalProcessed === 0) {
                 console.error('Import potentially failed: 0 transactions processed');
-            }
-            else {
+            } else {
                 console.log(`Import completed successfully. Total transactions processed: ${totalProcessed}`);
             }
 
@@ -190,5 +200,4 @@ export async function startImport() {
         console.error('Failed to import transactions:', error);
         process.exit(1);
     });
-
 }
