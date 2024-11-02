@@ -8,7 +8,7 @@ terraform {
 }
 
 locals {
-  clickhouse_version = "23.8"
+  clickhouse_version = "24.10.1"
   database_name     = "blockchain"
   table_name     = "transactions"
   data_directory    = "/var/lib/clickhouse"

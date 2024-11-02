@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # Load environment variables
-set -a
-source .env
-set +a
+if [ $(echo $DOCKER_MODE | tr -d '\"') = "False" ]; then \
+    set -a
+    source .env
+    set +a
+fi
 
 # Create log directory if it doesn't exist
 mkdir -p "$LOG_DIR"
@@ -18,7 +20,7 @@ log() {
 }
 
 # Read SQL template once
-SQL_TEMPLATE=$(cat "$SQL_DIR/batch_import.sql")
+SQL_TEMPLATE=$(cat "./batch_import.sql")
 if [ $? -ne 0 ]; then
     log "Error: Failed to read SQL template"
     exit 1

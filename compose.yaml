@@ -1,0 +1,74 @@
+name: bctk
+
+x-bctk-common-env: &bctk-common-env
+  CLICKHOUSE_IP: "${CLICKHOUSE_IP}"
+  CLICKHOUSE_PORT: "${CLICKHOUSE_PORT}"
+  CLICKHOUSE_DB: "${CLICKHOUSE_DB}"
+  CLICKHOUSE_USER: "${CLICKHOUSE_USER}"
+  CLICKHOUSE_PASSWORD: "${CLICKHOUSE_PASSWORD}"
+  CLICKHOUSE_URL: "http://${CLICKHOUSE_IP}:${CLICKHOUSE_PORT}"
+  # CLICKHOUSE_URL: "http://${CLICKHOUSE_USER}:${CLICKHOUSE_PASSWORD}@${CLICKHOUSE_IP}:${CLICKHOUSE_PORT}[/database][?param1=value1&param2=value2]"
+
+x-bctk-clickhouse-env: &bctk-clickhouse-env
+  environment:
+    <<: *bctk-common-env
+    # DATA_DIR: "${DATA_DIR}"
+    # LOG_DIR: "${LOG_DIR}"
+    # ERROR_TOLERANCE: "${ERROR_TOLERANCE}"
+    # MAX_INSERT_THREADS: "${MAX_INSERT_THREADS}"
+    # MAX_MEMORY_USAGE: "${MAX_MEMORY_USAGE}"
+    # MAX_INSERT_BLOCK_SIZE: "${MAX_INSERT_BLOCK_SIZE}"
+
+x-bctk-app-env: &bctk-app-env
+  environment:
+    <<: *bctk-common-env
+    AVALANCHE_RPC_URL: "${AVALANCHE_RPC_URL}"
+    START_IMPORT: "${START_IMPORT}"
+    START_REALTIME: "${START_REALTIME}"
+    START_API: "${START_API}"
+  
+
+volumes:
+  bctk-vclickhouse:
+    name: bctk_vclickhouse
+  
+networks:
+  bctk-network:
+    name: bctk_network
+    driver: bridge
+    ipam:
+      config:
+        # specific range to avoid conflicts with the bridge network (172.17)
+        - subnet: ${DOCKER_SUBNET_BASE}.0/16
+
+services:
+
+  clickhouse:
+    container_name: bctk_clickhouse
+    image: clickhouse/clickhouse-server:24.10.1
+    # build:
+    #   context: .
+    #   dockerfile: db/Dockerfile
+    #   args:
+    #     - IMPORT_DATA="True"
+    restart: always
+    <<: *bctk-clickhouse-env
+    volumes:
+      - bctk-vclickhouse:/var/lib/clickhouse
+      - ./db/startup_scripts.xml:/etc/clickhouse-server/config.d/startup_scripts.xml:ro
+    networks:
+      bctk-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.101
+  
+  application:
+    container_name: bctk_app
+    build: src
+    restart: always
+    depends_on:
+      - clickhouse
+    <<: *bctk-app-env
+    volumes:
+      - ${DATA_DIR}:/srv/data
+    networks:
+      bctk-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.201
