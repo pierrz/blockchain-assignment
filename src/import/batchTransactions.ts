@@ -19,10 +19,10 @@ interface Transaction {
     tx_index: number;
     from_address: string;
     to_address: string;
-    value: string;
+    value: bigint;
     gas_limit: bigint;
     gas_used: bigint;
-    gas_price: string;
+    gas_price: bigint;
 }
 
 interface CSVRecord {
@@ -68,10 +68,10 @@ export async function startImport() {
                                 tx_index: parseInt(record.tx_index, 10),
                                 from_address: record.from,
                                 to_address: record.to,
-                                value: record.value,
+                                value: BigInt(record.value),
                                 gas_limit: BigInt(record.gas_limit),
                                 gas_used: BigInt(record.gas_used),
-                                gas_price: record.gas_price,
+                                gas_price: BigInt(record.gas_price)
                             };
     
                             batch.push(transaction);
