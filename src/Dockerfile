@@ -29,7 +29,7 @@ COPY --from=builder /opt/app/dist ./dist
 ENV NODE_ENV=production
 
 # Optional: if your app needs specific user permissions
-USER node
+# USER node
 
 # Expose default port (customize as needed)
 EXPOSE 3000
