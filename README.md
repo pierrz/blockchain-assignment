@@ -1,44 +1,53 @@
 # blockchain-assignment
-Repository used for the Blockchain assignment from Clayton
 
-## ClickHouse configuration via Terraform
+#### Description
+Repository used for the Blockchain technical assignment.
 
-This Terraform module sets up a ClickHouse instance optimized for blockchain transaction data.
+#### Table of Contents
+- [Overview](#overview)
+- [Schema](#schema)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Deployment with Terraform (WIP)](#deployment-with-terraform-wip)
+- [APIs](#apis)
+- [Technical Debt](#technical-debt)
 
-### Overview
+<hr>
 
-The configuration provides:
-- Automated ClickHouse installation
-- Optimized schema for blockchain transactions
+### Database setup adn schema
+
+Cf. [`db/startup_scripts.xml`](db/startup_scripts.xml)
+
+- Optimized schema for the `blockchain.transactions` table
 - Real-time analytics via materialized views
+    - tx_analytics - Daily statistics
+    - address_activity - Per-address metrics
 - Configurable performance settings
 
-### Schema
+<br>
 
-#### Main Table: transactions
-```sql
-CREATE TABLE transactions (
-    timestamp DateTime,
-    status Bool,
-    block_number UInt64,
-    tx_index UInt32,
-    from_address String,
-    to_address String,
-    value Decimal256(18),
-    gas_limit UInt64,
-    gas_used UInt64,
-    gas_price Decimal128(18)
-)
-ENGINE = MergeTree()
-PARTITION BY toYYYYMM(timestamp)
-ORDER BY (block_number, tx_index)
-```
+### Installation
+- Create the `.env` based on the provided [`.env.example`](.env.example)
+- Tweak `src/config/production.json`(src/config/production.json) to decide which Typescript components will be running (import, realtime, APIs).
+- If using the "import" mode, you have to put your source `.tar.gz` data in `$DATA_DIR` (Cf. `.env`)
 
-#### Materialized Views
-1. tx_analytics - Daily statistics
-2. address_activity - Per-address metrics
+<br>
 
 ### Quick Start
+
+Run the Docker Compose command:
+```
+docker compose up --build
+```
+
+<br>
+
+### Deployment with Terraform (WIP)
+
+The Terraform setup 
+- install this repository
+- install a ClickHouse database
+- install NGinx with the required configurations
 
 1. Initialize:
 ```bash
@@ -57,37 +66,23 @@ clickhouse_password = "secure_password"
 terraform apply
 ```
 
-### Variables
 
-| Name | Description | Default |
-|------|-------------|---------|
-| clickhouse_user | Database user | "default" |
-| clickhouse_password | User password | "clickhouse" |
-| data_path | CSV file location | "/data/43114_txs.csv" |
-| settings | Performance configs | See variables.tf |
-| retention | Data retention | 90 days |
-| replication | Replication settings | disabled |
-
-### Security
-
-- Change default password
-- Configure access controls
-- Keep system updated
-- Monitor logs
-
-### Maintenance
-
-Backup:
-```sql
-BACKUP TABLE blockchain.transactions 
-TO '/backup/transactions'
+### APIs
+When using Docker, you can access the APIs via the following queries:
+- Transactions list: 
+```
+curl -s "http://localhost:3000/transactions?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&page=2&limit=5" | jq '.'
+```
+- Transactions list, sorted by values: 
+```
+curl -s "http://localhost:3000/transactions/by-value?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&page=2&limit=5" | jq '.'
+```
+- Transactions count: 
+```
+curl -s "http://localhost:3000/transactions/count?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&
 ```
 
-Monitor:
-```sql
-SELECT * FROM system.metrics;
-```
-
-Cleanup:
-```bash
-terraform destroy
+### Technical Debt
+- Implement complete authentication for ClicHouse
+- Tests for the Typescript components
+- Linting, coverage
