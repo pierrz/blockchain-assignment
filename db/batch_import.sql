@@ -1,3 +1,4 @@
+-- For ubber-large files, this script can be used directly with the ClickHouse client
 INSERT INTO transactions
 SELECT
     parseDateTimeBestEffort(JSONExtractString(_raw, 'timestamp')) as timestamp,
