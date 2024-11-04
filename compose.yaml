@@ -1,0 +1,59 @@
+name: bctk
+
+x-bctk-common-env: &bctk-common-env
+  CLICKHOUSE_DB: "${CLICKHOUSE_DB}"
+  CLICKHOUSE_USER: "${CLICKHOUSE_USER}"
+  CLICKHOUSE_PASSWORD: "${CLICKHOUSE_PASSWORD}"
+  CLICKHOUSE_URL: "http://${CLICKHOUSE_IP}:${CLICKHOUSE_PORT}"
+
+x-bctk-clickhouse-env: &bctk-clickhouse-env
+  environment:
+    <<: *bctk-common-env
+
+x-bctk-app-env: &bctk-app-env
+  environment:
+    <<: *bctk-common-env
+    AVALANCHE_RPC_URL: "${AVALANCHE_RPC_URL}"
+  
+
+volumes:
+  bctk-vclickhouse:
+    name: bctk_vclickhouse
+  
+networks:
+  bctk-network:
+    name: bctk_network
+    driver: bridge
+    ipam:
+      config:
+        # specific range to avoid conflicts with the bridge network (172.17)
+        - subnet: ${DOCKER_SUBNET_BASE}.0/16
+
+services:
+
+  clickhouse:
+    container_name: bctk_clickhouse
+    image: clickhouse/clickhouse-server:24.10.1
+    restart: always
+    <<: *bctk-clickhouse-env
+    volumes:
+      - bctk-vclickhouse:/var/lib/clickhouse
+      - ./db/startup_scripts.xml:/etc/clickhouse-server/config.d/startup_scripts.xml:ro
+    networks:
+      bctk-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.101
+  
+  application:
+    container_name: bctk_app
+    build: src
+    restart: always
+    depends_on:
+      - clickhouse
+    <<: *bctk-app-env
+    volumes:
+      - ${DATA_DIR}:/srv/data
+    ports:
+      - "3000:3000"
+    networks:
+      bctk-network:
+        ipv4_address: ${DOCKER_SUBNET_BASE}.201
