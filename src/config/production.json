@@ -6,8 +6,8 @@
         "failedDir": "failed"
     },
     "modes": {
-        "api": false,
+        "api": true,
         "import": false,
-        "realtime": true
+        "realtime": false
     }
 }

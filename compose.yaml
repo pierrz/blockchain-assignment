@@ -52,6 +52,8 @@ services:
     <<: *bctk-app-env
     volumes:
       - ${DATA_DIR}:/srv/data
+    ports:
+      - "3000:3000"
     networks:
       bctk-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.201

@@ -28,8 +28,9 @@ const handleTransactionCount: RequestHandler = async (req, res) => {
   }
 
   try {
-    const count = await getTransactionCount(String(address));
-    res.json({ address, transactionCount: count });
+    const countResponse = await getTransactionCount(String(address));
+    // res.json({ address, transactionCount: count });
+    res.json(countResponse)
   } catch (error) {
     res.status(500).json({ error: "Error retrieving transaction count" });
   }

@@ -1,3 +1,5 @@
+// All data components required to ensure consistency when parsing and loading transactions
+
 // Transactions are loaded mostly as string data to cover for some TS limitations:
 //  - maintain number (integers and decimals) length
 //  - maintain to types of addresses (EVM and Avalanches)
