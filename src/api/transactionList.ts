@@ -20,17 +20,17 @@ export async function getTransactions(address: string, page: number = 1, limit: 
   }
 
   try {
-    const resultSet = await clickhouse.query({
-      query: `
+    const listQuery = `
         SELECT *
-        FROM transactions
-        WHERE from_address = {address:String} OR to_address = {address:String}
+        FROM blockchain.transactions
+        WHERE from_address = '${address}' OR to_address = '${address}'
         ORDER BY blockNumber, transactionIndex
-        LIMIT ? OFFSET ?
-      `,
-      // query_params: [address, address, limit, offset]
+        LIMIT {limit:UInt32} OFFSET {offset:UInt32}
+      `
+    console.log(listQuery)
+    const resultSet = await clickhouse.query({
+      query: listQuery,
       query_params: {
-        address: address,
         limit: limit,
         offset: offset
       }
