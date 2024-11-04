@@ -7,12 +7,20 @@
  * @param address The address to filter transactions.
  * @param page The page number for pagination.
  * @param limit The number of transactions per page.
- * @returns List of transactions sorted by blockNumber and transactionIndex.
+ * @param byValue Optional parameter to get the list sorted by value
+ * @returns List of transactions sorted by blockNumber and transactionIndex (default) or by value.
  */
-
 import { clickhouse } from '../dbClient/clickhouseClient.js';
+import { ClickhouseResponse, TransactionPaginatedResult } from './responses.js';
 
-export async function getTransactions(address: string, page: number = 1, limit: number = 10) {
+
+export async function getTransactions(
+  address: string,
+  page: number = 1,
+  limit: number = 10,
+  byValue: boolean = false
+): Promise<TransactionPaginatedResult> {
+  
   const offset = (page - 1) * limit;
 
   if (!address) {
@@ -20,14 +28,22 @@ export async function getTransactions(address: string, page: number = 1, limit: 
   }
 
   try {
-    const listQuery = `
+
+    // sorted by values or not
+    let listQuery = `
         SELECT *
         FROM blockchain.transactions
         WHERE from_address = '${address}' OR to_address = '${address}'
-        ORDER BY blockNumber, transactionIndex
-        LIMIT {limit:UInt32} OFFSET {offset:UInt32}
       `
-    console.log(listQuery)
+
+    if (byValue) {
+      listQuery = `${listQuery} ORDER BY value DESC`
+    }
+    else {
+      listQuery = `${listQuery} ORDER BY block_number, tx_index`
+    }
+    listQuery = `${listQuery} LIMIT {limit:UInt32} OFFSET {offset:UInt32}`
+
     const resultSet = await clickhouse.query({
       query: listQuery,
       query_params: {
@@ -36,7 +52,15 @@ export async function getTransactions(address: string, page: number = 1, limit: 
       }
     });
 
-    return await resultSet.json();
+    const result = await resultSet.json<ClickhouseResponse>(),
+          elapsedTime = parseFloat((result.statistics?.elapsed ?? 0).toFixed(6));
+    return {
+      address,
+      page: page,
+      elapsed_time: elapsedTime,
+      data: result.data
+    };
+
   }  catch (error) {
       console.error("Error counting transactions:", error);
       if (error instanceof Error) {

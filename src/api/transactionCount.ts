@@ -8,26 +8,14 @@
  */
 
 import { clickhouse } from '../dbClient/clickhouseClient.js';
+import { ClickhouseResponse } from './responses.js';
 
 interface TransactionCountResult {
   address: string;
   transactionCount: number;
-  elapsed: number;
+  elapsed_time: number;
 }
 
-interface ClickhouseResponse {
-  meta: Array<{ 
-    name: string;
-    type: string;
-  }>;
-  data: Array<Record<string, string>>;
-  rows: number;
-  statistics?: {
-    elapsed: number;
-    rows_read: number;
-    bytes_read: number;
-  };
-}
 
 export async function getTransactionCount(address: string): Promise<TransactionCountResult> {
   if (!address) {
@@ -53,7 +41,7 @@ export async function getTransactionCount(address: string): Promise<TransactionC
       return { 
         address,
         transactionCount: 0,
-        elapsed: 0 
+        elapsed_time: 0 
       };
     }
 
@@ -65,7 +53,7 @@ export async function getTransactionCount(address: string): Promise<TransactionC
     return {
       address,
       transactionCount: isNaN(count) ? 0 : count,
-      elapsed: elapsedTime
+      elapsed_time: elapsedTime
     };
 
   } catch (error) {

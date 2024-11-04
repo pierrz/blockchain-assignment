@@ -3,6 +3,7 @@
 //  i.e. the amount of $AVAX transferred.
 
 import { clickhouse } from '../dbClient/clickhouseClient.js';
+import { ClickhouseResponse, TransactionPaginatedResult } from './responses.js';
 
 /**
  * Get a paginated list of transactions for a given address, sorted by value.
@@ -15,15 +16,15 @@ export async function getTransactionsSortedByValue(address: string, page: number
   const offset = (page - 1) * limit;
 
   try {
-    const resultSet = await clickhouse.query({
-      query: `
+    const listByValuesQuery = `
         SELECT *
-        FROM transactions
-        WHERE from_address = {address:String} OR to_address = {address:String}
+        FROM blockchain.transactions
+        WHERE from_address = '${address}' OR to_address = '${address}'
         ORDER BY value DESC
-        LIMIT ? OFFSET ?
-      `,
-      // query_params: [address, address, limit, offset]
+        LIMIT {limit:UInt32} OFFSET {offset:UInt32}
+      `
+    const resultSet = await clickhouse.query({
+      query: listByValuesQuery,
       query_params: {
         address: address,
         limit: limit,
