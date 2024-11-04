@@ -1,10 +1,11 @@
 import { createReadStream } from 'fs';
 import { createGunzip } from 'zlib';
 import { parse } from 'csv-parse';
+import { join } from 'path';
 import { pipeline } from 'stream/promises';
 import { importData } from './utils.js';
 import { Transform } from 'stream';
-import { dataDir } from '../config.js';
+import config from 'config';
 
 const csv_headers = ["timestamp","status","block_number","tx_index","from","to","value","gas_limit","gas_used","gas_price"];
 
@@ -24,16 +25,13 @@ interface Transaction {
     gas_price: string;
 }
 
-
 export async function importTransactions() {
-
     async function processTransactions(filePath: string): Promise<Transaction[]> {
         const BATCH_SIZE = 10000;
         let batch: Transaction[] = [];
         let transactions: Transaction[] = [];
     
         try {
-
             await pipeline(
                 createReadStream(filePath),
                 createGunzip(),
@@ -91,9 +89,11 @@ export async function importTransactions() {
         }
     }
 
-    importData(dataDir, "transactions", processTransactions).catch((error: unknown) => {
+    const dataDir = config.get<string>('directories.dataDir'),
+        sourceDir = join(dataDir, config.get<string>('directories.sourceDir'));
+
+    importData(sourceDir, "transactions", processTransactions).catch((error: unknown) => {
         console.error(`Failed to import transactions:`, error);
         process.exit(1);
     });
-
 }

@@ -14,9 +14,6 @@ x-bctk-app-env: &bctk-app-env
   environment:
     <<: *bctk-common-env
     AVALANCHE_RPC_URL: "${AVALANCHE_RPC_URL}"
-    START_IMPORT: "${START_IMPORT}"
-    START_REALTIME: "${START_REALTIME}"
-    START_API: "${START_API}"
   
 
 volumes:

@@ -5,30 +5,32 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-      "build": "tsc",
-      "start": "node dist/index.js",
-      "start:api": "node dist/index.js",
-      "start:import": "node dist/index.js",
-      "start:realtime": "node dist/index.js",
-      "dev": "ts-node-dev --respawn index.ts",
-      "dev:api": "ts-node-dev --respawn index.ts",
-      "dev:import": "ts-node-dev --respawn index.js",
-      "dev:realtime": "ts-node-dev --respawn index.ts"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:api": "node dist/index.js",
+    "start:import": "node dist/index.js",
+    "start:realtime": "node dist/index.js",
+    "dev": "ts-node-dev --respawn index.ts",
+    "dev:api": "ts-node-dev --respawn index.ts",
+    "dev:import": "ts-node-dev --respawn index.js",
+    "dev:realtime": "ts-node-dev --respawn index.ts"
   },
   "dependencies": {
-    "express": "^4.21.1",
-    "avalanche-cli": "^2.6.2",
     "@clickhouse/client": "^1.7.0",
+    "avalanche-cli": "^2.6.2",
+    "config": "3.3.12",
     "csv-parse": "^5.5.6",
-    "viem": "^2.21.39",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "viem": "^2.21.39"
   },
   "devDependencies": {
-    "@types/node": "^22.8.6",
+    "@types/config": "^3.3.5",
     "@types/express": "^5.0.0",
-    "typescript": "^5.6.3",
+    "@types/node": "^22.8.6",
     "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0"
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3"
   },
   "author": "Pierre-Edouard Barrault",
   "license": "MIT"

@@ -2,7 +2,7 @@ import { rename, mkdir } from 'fs';
 import { readdir } from 'fs/promises';
 import { join, basename } from 'path';
 import { clickhouse } from '../dbClient/clickhouseClient.js';
-import {processedDir, failedDir } from '../config.js';
+import config from 'config';
 
 /**
  * Moves a file from source path to a destination directory.
@@ -13,7 +13,9 @@ import {processedDir, failedDir } from '../config.js';
  * @returns Promise that resolves when the file has been moved
  */
 export async function moveFile(sourcePath: string, destinationDir: string): Promise<void> {
+
     const destinationPath = join(destinationDir, basename(sourcePath));
+    
     try {
         await new Promise<void>((resolve, reject) => {
             mkdir(destinationDir, { recursive: true }, (err) => {
@@ -34,9 +36,11 @@ export async function moveFile(sourcePath: string, destinationDir: string): Prom
     }
 }
 
-
 export async function importData(sourceDir: string, tableName: string, processFunction: any): Promise<void> {
     let totalProcessed = 0;
+    const dataDir = config.get<string>('directories.dataDir'),
+        processedDir = join(dataDir, config.get<string>('directories.processedDir')),
+        failedDir = join(dataDir, config.get<string>('directories.failedDir'));
 
     try {
         const files = await readdir(sourceDir);
