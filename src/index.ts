@@ -1,5 +1,5 @@
 import { startAPI } from './api/endpoints.js';
-import { startRealtime } from './realtime/monitorAndLoad.js';
+import { realtimeMonitoring } from './realtime/monitorAndLoad.js';
 import { importTransactions } from './import/batchTransactions.js';
 import config from 'config';
 
@@ -14,7 +14,7 @@ async function main() {
     }
     if (realtimeMode) {
         console.log('--> REALTIME');
-        await startRealtime();
+        await realtimeMonitoring();
     }
     if (apiMode) {
         console.log('--> API');

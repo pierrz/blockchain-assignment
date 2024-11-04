@@ -6,37 +6,21 @@ import { pipeline } from 'stream/promises';
 import { importData } from './utils.js';
 import { Transform } from 'stream';
 import config from 'config';
+import { transactionTableName, transactionCSVFields, TransactionInterface } from '../models/transactions.js';
 
-const csv_headers = ["timestamp","status","block_number","tx_index","from","to","value","gas_limit","gas_used","gas_price"];
-
-// Transactions are loaded mostly as string data to cover for some TS limitations:
-//  - maintain number (integers and decimals) length
-//  - maintain to types of addresses (EVM and Avalanches)
-interface Transaction {
-    timestamp: string;
-    status: boolean;
-    block_number: string;
-    tx_index: string;
-    from_address: string;
-    to_address: string;
-    value: string;
-    gas_limit: string;
-    gas_used: string;
-    gas_price: string;
-}
 
 export async function importTransactions() {
-    async function processTransactions(filePath: string): Promise<Transaction[]> {
+    async function processTransactions(filePath: string): Promise<TransactionInterface[]> {
         const BATCH_SIZE = 10000;
-        let batch: Transaction[] = [];
-        let transactions: Transaction[] = [];
+        let batch: TransactionInterface[] = [];
+        let transactions: TransactionInterface[] = [];
     
         try {
             await pipeline(
                 createReadStream(filePath),
                 createGunzip(),
                 parse({
-                    columns: csv_headers,
+                    columns: transactionCSVFields,
                     from_line: 2,
                     skip_empty_lines: true,
                     skip_records_with_empty_values: true,
@@ -47,7 +31,7 @@ export async function importTransactions() {
                     objectMode: true,
                     async transform(row, encoding, callback) {
                         try {
-                            const transaction: Transaction = {
+                            const transaction: TransactionInterface = {
                                 timestamp: (row.timestamp).replace(' ', 'T'),
                                 status: Boolean(row.status),
                                 block_number: BigInt(row.block_number).toString(),
@@ -92,7 +76,7 @@ export async function importTransactions() {
     const dataDir = config.get<string>('directories.dataDir'),
         sourceDir = join(dataDir, config.get<string>('directories.sourceDir'));
 
-    importData(sourceDir, "transactions", processTransactions).catch((error: unknown) => {
+    importData(sourceDir, transactionTableName, processTransactions).catch((error: unknown) => {
         console.error(`Failed to import transactions:`, error);
         process.exit(1);
     });

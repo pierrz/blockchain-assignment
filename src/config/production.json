@@ -7,7 +7,7 @@
     },
     "modes": {
         "api": false,
-        "import": true,
-        "realtime": false
+        "import": false,
+        "realtime": true
     }
 }

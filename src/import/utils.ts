@@ -36,7 +36,7 @@ export async function moveFile(sourcePath: string, destinationDir: string): Prom
     }
 }
 
-export async function importData(sourceDir: string, tableName: string, processFunction: any): Promise<void> {
+export async function importData(sourceDir: string, tableName: string, processFunction: CallableFunction): Promise<void> {
     let totalProcessed = 0;
     const dataDir = config.get<string>('directories.dataDir'),
         processedDir = join(dataDir, config.get<string>('directories.processedDir')),
