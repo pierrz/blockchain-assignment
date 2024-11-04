@@ -1,23 +1,14 @@
 name: bctk
 
 x-bctk-common-env: &bctk-common-env
-  CLICKHOUSE_IP: "${CLICKHOUSE_IP}"
-  CLICKHOUSE_PORT: "${CLICKHOUSE_PORT}"
   CLICKHOUSE_DB: "${CLICKHOUSE_DB}"
   CLICKHOUSE_USER: "${CLICKHOUSE_USER}"
   CLICKHOUSE_PASSWORD: "${CLICKHOUSE_PASSWORD}"
   CLICKHOUSE_URL: "http://${CLICKHOUSE_IP}:${CLICKHOUSE_PORT}"
-  # CLICKHOUSE_URL: "http://${CLICKHOUSE_USER}:${CLICKHOUSE_PASSWORD}@${CLICKHOUSE_IP}:${CLICKHOUSE_PORT}[/database][?param1=value1&param2=value2]"
 
 x-bctk-clickhouse-env: &bctk-clickhouse-env
   environment:
     <<: *bctk-common-env
-    # DATA_DIR: "${DATA_DIR}"
-    # LOG_DIR: "${LOG_DIR}"
-    # ERROR_TOLERANCE: "${ERROR_TOLERANCE}"
-    # MAX_INSERT_THREADS: "${MAX_INSERT_THREADS}"
-    # MAX_MEMORY_USAGE: "${MAX_MEMORY_USAGE}"
-    # MAX_INSERT_BLOCK_SIZE: "${MAX_INSERT_BLOCK_SIZE}"
 
 x-bctk-app-env: &bctk-app-env
   environment:
@@ -46,11 +37,6 @@ services:
   clickhouse:
     container_name: bctk_clickhouse
     image: clickhouse/clickhouse-server:24.10.1
-    # build:
-    #   context: .
-    #   dockerfile: db/Dockerfile
-    #   args:
-    #     - IMPORT_DATA="True"
     restart: always
     <<: *bctk-clickhouse-env
     volumes:

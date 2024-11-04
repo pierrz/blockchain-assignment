@@ -1,5 +1,5 @@
 import { createReadStream } from 'fs';
-import { readdir } from 'fs/promises';
+import { readdir, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { createGunzip } from 'zlib';
 import { parse } from 'csv-parse';
@@ -9,32 +9,24 @@ import { moveFile } from './utils.js';
 import { Transform } from 'stream';
 import { dataDir, processedDir, failedDir } from '../config.js';
 
+const csv_headers = ["timestamp","status","block_number","tx_index","from","to","value","gas_limit","gas_used","gas_price"];
 
+// Transactions are loaded mostly as string data to cover for some TS limitations:
+//  - maintain number (integers and decimals) length
+//  - maintain to types of addresses (EVM and Avalanches)
 interface Transaction {
     timestamp: string;
     status: boolean;
-    block_number: string;  // Changed from bigint to string
-    tx_index: number;
-    from_address: string;
-    to_address: string;
-    value: string;
-    gas_limit: string;    // Changed from bigint to string
-    gas_used: string;     // Changed from bigint to string
-    gas_price: string;    // Changed from bigint to string
-}
-
-interface CSVRecord {
-    timestamp: string;
-    status: string;
     block_number: string;
     tx_index: string;
-    from: string;
-    to: string;
+    from_address: string;
+    to_address: string;
     value: string;
     gas_limit: string;
     gas_used: string;
     gas_price: string;
 }
+
 
 export async function startImport() {
 
@@ -44,36 +36,36 @@ export async function startImport() {
         let transactions: Transaction[] = [];
     
         try {
+
             await pipeline(
                 createReadStream(filePath),
                 createGunzip(),
                 parse({
-                    columns: true,
+                    columns: csv_headers,
+                    from_line: 2,
                     skip_empty_lines: true,
                     skip_records_with_empty_values: true,
                     skip_records_with_error: true,
-                    cast: true,
+                    quote: '"'
                 }),
                 new Transform({
                     objectMode: true,
-                    async transform(record: CSVRecord, encoding, callback) {
+                    async transform(row, encoding, callback) {
                         try {
-                            // Some blockchain numeric fields exceed JavaScript's Number.MAX_SAFE_INTEGER
-                            // and are converted to string
                             const transaction: Transaction = {
-                                timestamp: record.timestamp,
-                                // status: record.status === 'true',
-                                status: Boolean(record.status),
-                                block_number: BigInt(record.block_number).toString(), // Convert to string
-                                tx_index: parseInt(record.tx_index, 10),
-                                from_address: record.from,
-                                to_address: record.to,
-                                value: record.value,
-                                gas_limit: BigInt(record.gas_limit).toString(),  // Convert to string
-                                gas_used: BigInt(record.gas_used).toString(),    // Convert to string
-                                gas_price: BigInt(record.gas_price).toString()
+                                timestamp: (row.timestamp).replace(' ', 'T'),
+                                status: Boolean(row.status),
+                                block_number: BigInt(row.block_number).toString(),
+                                tx_index: BigInt(row.tx_index).toString(),
+                                from_address: row.from,
+                                to_address: row.to,
+                                // these fields might be decimals, hence using Number() and not BigInt()
+                                value: Number(row.value).toString(),
+                                gas_limit: Number(row.gas_limit).toString(),
+                                gas_used: Number(row.gas_used).toString(),
+                                gas_price: Number(row.gas_price).toString()
                             };
-    
+                            
                             batch.push(transaction);
     
                             if (batch.length >= BATCH_SIZE) {
@@ -102,28 +94,6 @@ export async function startImport() {
         }
     }
 
-    // async function moveFile(sourcePath: string, destinationDir: string): Promise<void> {
-    //     const destinationPath = join(destinationDir, basename(sourcePath));
-    //     try {
-    //         await new Promise<void>((resolve, reject) => {
-    //             mkdir(destinationDir, { recursive: true }, (err) => {
-    //                 if (err) reject(err);
-    //                 else resolve();
-    //             });
-    //         });
-            
-    //         await new Promise<void>((resolve, reject) => {
-    //             rename(sourcePath, destinationPath, (err) => {
-    //                 if (err) reject(err);
-    //                 else resolve();
-    //             });
-    //         });
-    //     } catch (error) {
-    //         console.error('Error moving file:', error);
-    //         throw error;
-    //     }
-    // }
-      
     async function importTransactions(): Promise<void> {
         let totalProcessed = 0;
 

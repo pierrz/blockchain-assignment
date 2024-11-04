@@ -7,7 +7,7 @@
         <scripts>
             <query>
                 CREATE TABLE IF NOT EXISTS blockchain.transactions (
-                    timestamp DateTime,
+                    timestamp DateTime64(3),
                     status Bool,
                     block_number UInt64,
                     tx_index UInt32,
