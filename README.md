@@ -83,6 +83,7 @@ curl -s "http://localhost:3000/transactions/count?address=0x9702230A8Ea53601f5cD
 ```
 
 ### Technical Debt
+- Finalise Terraform setup
 - Implement complete authentication for ClicHouse
 - Tests for the Typescript components
 - Linting, coverage
