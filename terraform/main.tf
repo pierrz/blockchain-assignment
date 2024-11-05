@@ -28,11 +28,11 @@ locals {
 }
 
 # Create instance
-resource "scaleway_instance_ip" "public_ip" {
+resource "scaleway_instance_ip" "public_ipv4" {
   type = "routed_ipv4"
   # project_id = var.scaleway_project_id
 }
-resource "scaleway_instance_ip" "public_ip_ipv6" {
+resource "scaleway_instance_ip" "public_ipv6" {
   type = "routed_ipv6"
   # project_id = var.scaleway_project_id
 }
@@ -42,8 +42,8 @@ resource "scaleway_instance_server" "main" {
   # image = "ubuntu_noble"    # ubuntu 24.04 LTS
   image = "ubuntu_jammy" # ubuntu 22.04 LTS
   ip_ids = [
-    scaleway_instance_ip.public_ip.id,
-    scaleway_instance_ip.public_ip_ipv6.id
+    scaleway_instance_ip.public_ipv4.id,
+    scaleway_instance_ip.public_ipv6.id
   ]
 
   root_volume {
@@ -85,14 +85,14 @@ resource "scaleway_domain_record" "ipv4" {
   dns_zone = local.domain_parts[0]
   name     = local.domain_parts[0]
   type     = "A"
-  data     = scaleway_instance_ip.public_ip_ipv6.address
+  data     = scaleway_instance_ip.public_ipv4.address
   ttl      = 1800
 }
 resource "scaleway_domain_record" "ipv6" {
   dns_zone = local.domain_parts[0]
   name     = local.domain_parts[0]
   type     = "AAAA"
-  data     = scaleway_instance_ip.public_ip_ipv6.address
+  data     = scaleway_instance_ip.public_ipv6.address
   ttl      = 3600
 }
 
@@ -103,7 +103,7 @@ resource "null_resource" "setup_services" {
   connection {
     type = "ssh"
     user = var.scaleway_server_user
-    host = scaleway_instance_ip.public_ip.address
+    host = scaleway_instance_ip.public_ipv4.address
     # host        = scaleway_instance_ip.public_ip_ipv6.address
     private_key = var.scaleway_ssh_private_key
   }
@@ -199,12 +199,12 @@ resource "null_resource" "setup_services" {
 }
 
 output "instance_ip" {
-  value = scaleway_instance_ip.public_ip_ipv6.address
+  value = scaleway_instance_ip.public_ipv6.address
 }
 
 output "clickhouse_connection" {
   value = {
-    host      = scaleway_instance_ip.public_ip_ipv6.address
+    host      = scaleway_instance_ip.public_ipv6.address
     http_port = 8123
     tcp_port  = 9000
     database  = local.database_name
