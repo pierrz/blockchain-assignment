@@ -39,9 +39,37 @@ resource "scaleway_instance_server" "main" {
     size_in_gb = var.scaleway_instance_size
   }
 
-  user_data = {
-    cloud-init = <<-EOF
-      #cloud-config
+  # user_data = var.user_data
+  # user_data = {
+  #   cloud-init = <<-EOF
+  #     #cloud-config
+  #     users:
+  #       - name: ${var.scaleway_server_user}
+  #         sudo: ['ALL=(ALL) NOPASSWD:ALL']
+  #         groups: sudo
+  #         shell: /bin/bash
+  #         ssh_authorized_keys:
+  #           - ${data.scaleway_account_ssh_key.cd_key.public_key}
+
+  #     apt-update: true
+  #     apt-upgrade: true
+
+  #     packages:
+  #       - apt-transport-https
+  #       - ca-certificates
+  #       - curl
+  #       - gnupg
+  #       - nginx
+  #       - git
+  #   EOF
+  # }
+}
+
+variable "user_data" {
+  type = map(any)
+  default = {
+    "cloud-init" = <<-EOF
+        #cloud-config
       users:
         - name: ${var.scaleway_server_user}
           sudo: ['ALL=(ALL) NOPASSWD:ALL']
@@ -50,8 +78,8 @@ resource "scaleway_instance_server" "main" {
           ssh_authorized_keys:
             - ${data.scaleway_account_ssh_key.cd_key.public_key}
       
-      package_update: true
-      package_upgrade: true
+      apt-update: true
+      apt-upgrade: true
       
       packages:
         - apt-transport-https
@@ -62,6 +90,12 @@ resource "scaleway_instance_server" "main" {
         - git
     EOF
   }
+}
+resource "scaleway_instance_user_data" "data" {
+  server_id = scaleway_instance_server.main.id
+  for_each  = var.user_data
+  key       = each.key
+  value     = each.value
 }
 
 # Create DNS records
