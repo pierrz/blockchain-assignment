@@ -98,12 +98,12 @@ jobs:
         TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
 
         # Github secrets
+        TF_VAR_github_token: ${{ secrets.BCTK_GITHUB_TOKEN }}
         TF_VAR_github_workspace: ${{ github.workspace }}
         TF_VAR_github_repo_name: ${{ github.repository }}
 
         # Terraform variables from variables.tf
         TF_VAR_bctk_domain: ${{ secrets.BCTK_DOMAIN }}
-        TF_VAR_github_token: ${{ secrets.BCTK_GITHUB_TOKEN }}
         TF_VAR_clickhouse_ip: ${{ secrets.CLICKHOUSE_IP }}
         TF_VAR_clickhouse_port: ${{ secrets.CLICKHOUSE_PORT }}
         TF_VAR_clickhouse_db: ${{ secrets.CLICKHOUSE_DB }}
