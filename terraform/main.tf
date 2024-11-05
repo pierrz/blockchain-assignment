@@ -28,9 +28,9 @@ locals {
 }
 
 # Create instance
-# resource "scaleway_instance_ip" "public_ip" {
-#   type = "routed_ipv4"
-# }
+resource "scaleway_instance_ip" "public_ip" {
+  type = "routed_ipv4"
+}
 resource "scaleway_instance_ip" "public_ip_ipv6" {
   type = "routed_ipv6"
 }
@@ -39,7 +39,10 @@ resource "scaleway_instance_server" "main" {
   type = var.scaleway_instance_type
   # image = "ubuntu_noble"    # ubuntu 24.04 LTS
   image = "ubuntu_jammy" # ubuntu 22.04 LTS
-  ip_id = scaleway_instance_ip.public_ip_ipv6.id
+  ip_ids = [
+    scaleway_instance_ip.public_ip.id,
+    scaleway_instance_ip.public_ip_ipv6.id
+  ]
 
   root_volume {
     size_in_gb = var.scaleway_instance_size
@@ -91,8 +94,8 @@ resource "null_resource" "setup_services" {
   connection {
     type = "ssh"
     user = var.scaleway_server_user
-    # host        = scaleway_instance_ip.public_ip.address
-    host        = scaleway_instance_ip.public_ip_ipv6.address
+    host        = scaleway_instance_ip.public_ip.address
+    # host        = scaleway_instance_ip.public_ip_ipv6.address
     private_key = var.scaleway_ssh_private_key
   }
 
