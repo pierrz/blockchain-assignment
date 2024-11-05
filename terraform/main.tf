@@ -94,7 +94,7 @@ resource "null_resource" "setup_services" {
   connection {
     type = "ssh"
     user = var.scaleway_server_user
-    host        = scaleway_instance_ip.public_ip.address
+    host = scaleway_instance_ip.public_ip.address
     # host        = scaleway_instance_ip.public_ip_ipv6.address
     private_key = var.scaleway_ssh_private_key
   }
