@@ -14,6 +14,11 @@ provider "scaleway" {
   zone       = var.scaleway_zone
 }
 
+data "scaleway_account_ssh_key" "ssh_key" {
+  name       = var.scaleway_ssh_key_names
+  project_id = var.scaleway_project_id
+}
+
 locals {
   clickhouse_version = "24.10.1"
   database_name      = var.clickhouse_db
@@ -42,7 +47,8 @@ resource "scaleway_instance_server" "main" {
           groups: sudo
           shell: /bin/bash
           ssh_authorized_keys:
-            - ${file("${var.github_workspace}/id_key.pub")}
+            - ${data.scaleway_account_ssh_key.ssh_key}
+            # - ${file("${var.github_workspace}/id_key.pub")}
       
       package_update: true
       package_upgrade: true
