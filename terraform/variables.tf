@@ -19,19 +19,11 @@ variable "scaleway_zone" {
   description = "Scaleway zone"
   type        = string
 }
-
-variable "scaleway_server_user" {
-  description = "Scaleway Server User"
-  type        = string
-}
-
-
 variable "scaleway_instance_type" {
   description = "Scaleway Instance Type"
   type        = string
   default     = "DEV1-M"  # 2 vCPUs, 4GB RAM
 }
-
 variable "scaleway_server_user" {
   description = "Username for deployment"
   type        = string
