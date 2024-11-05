@@ -126,9 +126,9 @@ resource "null_resource" "setup_services" {
       "sudo apt-get update",
       "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server clickhouse-client clickhouse-keeper",
 
-      - # # Configure ClickHouse
-      - # "sudo mkdir -p ${local.data_directory}",
-      - # "sudo chown -R clickhouse:clickhouse ${local.data_directory}",
+      # # Configure ClickHouse
+      # "sudo mkdir -p ${local.data_directory}",
+      # "sudo chown -R clickhouse:clickhouse ${local.data_directory}",
 
       # Clone and setup application
       "echo 'Installing Typescript components ...'",
