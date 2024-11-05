@@ -112,7 +112,6 @@ resource "null_resource" "setup_services" {
 
   provisioner "remote-exec" {
     inline = [
-
       # Install Node.js from NodeSource
       "echo 'Installing Node.js ...'",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
@@ -127,9 +126,9 @@ resource "null_resource" "setup_services" {
       "sudo apt-get update",
       "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server clickhouse-client clickhouse-keeper",
 
-      # # Configure ClickHouse
-      # "sudo mkdir -p ${local.data_directory}",
-      # "sudo chown -R clickhouse:clickhouse ${local.data_directory}",
+      - # # Configure ClickHouse
+      - # "sudo mkdir -p ${local.data_directory}",
+      - # "sudo chown -R clickhouse:clickhouse ${local.data_directory}",
 
       # Clone and setup application
       "echo 'Installing Typescript components ...'",
@@ -144,12 +143,14 @@ resource "null_resource" "setup_services" {
       "ln -s /opt/app/config /opt/app/dist/config",
 
       # Setup UFW
+      "echo 'Configuring UFW ...'",
+      "sudo ufw --force reset", # Reset UFW to default state
       "sudo ufw default deny incoming",
       "sudo ufw default allow outgoing",
       "sudo ufw allow 'OpenSSH'",
       "sudo ufw allow 'Nginx Full'",
-      "sudo ufw enable",
-      "sudo systemctl enable nginx",
+      "sudo ufw --force enable", # Enable UFW non-interactively
+      "sudo systemctl enable ufw",
 
       # Setup Nginx
       "sudo cp ./terraform/bctk.conf /etc/nginx/sites-available/",
@@ -203,7 +204,6 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable nginx",
       "sudo systemctl enable blockchain-app",
       "sudo systemctl start blockchain-app"
-
     ]
   }
 }
