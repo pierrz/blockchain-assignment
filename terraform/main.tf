@@ -42,7 +42,7 @@ resource "scaleway_instance_server" "main" {
           groups: sudo
           shell: /bin/bash
           ssh_authorized_keys:
-            - ${file("~/.ssh/id_rsa.pub")}
+            - ${file("${var.github_workspace}/id_key.pub")}
       
       package_update: true
       package_upgrade: true
@@ -83,7 +83,7 @@ resource "null_resource" "setup_services" {
     type        = "ssh"
     user        = var.scaleway_server_user
     host        = scaleway_instance_ip.public_ip.address
-    private_key = file("~/.ssh/id_rsa")
+    private_key = file("${var.github_workspace}/id_key")
   }
 
   provisioner "remote-exec" {

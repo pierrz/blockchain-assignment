@@ -37,19 +37,20 @@ variable "scaleway_ssh_key_names" {
 variable "bctk_domain" {
   description = "(Sub)Domain where to deploy the app and get a certificate for"
   type        = string
-  default     = "default"
 }
 
 variable "github_token" {
   description = "GitHub PAT token"
   type        = string
-  default     = "default"
 }
 
 variable "github_repo_name" {
   description = "GitHub repository"
   type        = string
-  default     = "default"
+}
+variable "github_workspace" {
+  description = "GitHub Actions workspace"
+  type        = string
 }
 
 # CLICKHOUSE DB
