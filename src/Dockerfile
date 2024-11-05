@@ -1,3 +1,5 @@
+# This image is covering both build and run steps
+
 # Build stage
 ARG WORKDIR=/opt/app \
     DOCKER_IMG=node:22.11.0

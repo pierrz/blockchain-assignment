@@ -48,12 +48,14 @@ jobs:
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/${{ github.repository }}/deployments?environment=$ENVIRONMENT_NAME&per_page=1")
 
+            echo "$DEPLOYMENT_RESPONSE"
             DEPLOYMENT_ID=$(echo "$DEPLOYMENT_RESPONSE" | jq -r '.[0].id')
             STATUS_RESPONSE=$(curl -s \
               -H "Authorization: Bearer ${{ secrets.BCTK_GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/${{ github.repository }}/deployments/$DEPLOYMENT_ID/statuses")
 
+            echo "$STATUS_RESPONSE"
             STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.[0].state')
             if [[ ($STATUS == "error" || "$STATUS" == "waiting") && $i -lt $TIMEOUT_MINUTES ]]; then
               echo "Approval not received yet - keep waiting for it"
@@ -130,15 +132,6 @@ jobs:
 
     - name: Checkout repository
       uses: actions/checkout@v4.1.7
-    
-    # - name: Create SSH key files
-    #   run: |
-    #     echo "${{ secrets.SSH_KEY }}" > ${{ github.workspace }}/id_key
-    #     # chown ${{ secrets.SCALEWAY_SERVER_USER }}:${{ secrets.SCALEWAY_SERVER_USER }} ${{ github.workspace }}/id_key
-    #     chmod 644 ${{ github.workspace }}/id_key
-    #     # echo "${{ secrets.SSH_KEY_PUB }}" > ${{ github.workspace }}/id_key.pub
-    #     # chmod 600 ${{ github.workspace }}/id_key.pub
-    #     ls -al ${{ github.workspace }}
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2
@@ -157,9 +150,6 @@ jobs:
       uses: ./.github/actions/terraform
       with:
         command: plan
-    
-    - name: Check Terraform
-      run: cat $(find /tmp -type f -name 'terraform_*.sh')
       
     - name: Apply Terraform configuration
       uses: ./.github/actions/terraform

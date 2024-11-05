@@ -24,16 +24,22 @@ locals {
   database_name      = var.clickhouse_db
   table_name         = "transactions"
   data_directory     = "/var/lib/clickhouse"
+  domain_parts       = split(".", var.bctk_domain)
 }
 
 # Create instance
-resource "scaleway_instance_ip" "public_ip" {}
+# resource "scaleway_instance_ip" "public_ip" {
+#   type = "routed_ipv4"
+# }
+resource "scaleway_instance_ip" "public_ip_ipv6" {
+  type = "routed_ipv6"
+}
 
 resource "scaleway_instance_server" "main" {
   type = var.scaleway_instance_type
   # image = "ubuntu_noble"    # ubuntu 24.04 LTS
   image = "ubuntu_jammy" # ubuntu 22.04 LTS
-  ip_id = scaleway_instance_ip.public_ip.id
+  ip_id = scaleway_instance_ip.public_ip_ipv6.id
 
   root_volume {
     size_in_gb = var.scaleway_instance_size
@@ -71,19 +77,11 @@ resource "scaleway_instance_server" "main" {
 
 # Create DNS records
 resource "scaleway_domain_record" "main" {
-  dns_zone = var.bctk_domain
-  name     = "@"
-  type     = "A"
-  data     = scaleway_instance_ip.public_ip.address
-  ttl      = 300
-}
-
-resource "scaleway_domain_record" "www" {
-  dns_zone = var.bctk_domain
-  name     = "www"
-  type     = "A"
-  data     = scaleway_instance_ip.public_ip.address
-  ttl      = 300
+  dns_zone = local.domain_parts[0]
+  name     = local.domain_parts[0]
+  type     = "AAAA"
+  data     = scaleway_instance_ip.public_ip_ipv6.address
+  ttl      = 3600
 }
 
 # Install and configure services
@@ -99,6 +97,7 @@ resource "null_resource" "setup_services" {
 
   provisioner "remote-exec" {
     inline = [
+
       # Install Node.js from NodeSource
       "echo 'Installing Node.js ...'",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
@@ -138,7 +137,7 @@ resource "null_resource" "setup_services" {
       # Setup SSL with Certbot
       "echo 'Configuring SSL ...'",
       "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
-      "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email admin@${var.bctk_domain}",
+      "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.domain_parts[0]}@${local.domain_parts[1]}",
 
       # Create .env
       "echo 'Creating .env file ...'",
@@ -151,9 +150,7 @@ resource "null_resource" "setup_services" {
       "echo 'AVALANCHE_RPC_URL=${var.avalanche_rpc_url}' >> .env",
       # "echo 'NODE_ENV=production' >> .env",
 
-      # Start Typescript components
-      # "npm start"
-      # Create systemd service file
+      # Create service for Typescript components
       "sudo tee /etc/systemd/system/blockchain-app.service << EOF",
       "[Unit]",
       "Description=Blockchain Application",
