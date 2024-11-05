@@ -1,22 +1,32 @@
+# INSTANCE
+variable "bctk_domain" {
+  description = "(Sub)Domain where to deploy the app and get a certificate for"
+  type        = string
+  default     = "default"
+}
+variable "github_token" {
+  description = "GitHub PAT token"
+  type        = string
+  default     = "default"
+}
+
+# CLICKHOUSE DB
 variable "clickhouse_user" {
   description = "ClickHouse default user"
   type        = string
   default     = "default"
 }
-
 variable "clickhouse_password" {
   description = "ClickHouse default user password"
   type        = string
   sensitive   = true
   default     = "clickhouse"  # Change this in production
 }
-
 variable "data_path" {
   description = "Path to the transactions CSV file"
   type        = string
   default     = "../data"
 }
-
 variable "settings" {
   description = "ClickHouse performance and storage settings"
   type        = map(string)
@@ -28,7 +38,6 @@ variable "settings" {
     max_table_size_to_drop    = "0"            # Disable DROP TABLE by default
   }
 }
-
 variable "retention" {
   description = "Data retention settings"
   type        = map(number)
@@ -37,7 +46,6 @@ variable "retention" {
     cleanup_interval_sec  = 60
   }
 }
-
 variable "replication" {
   description = "Replication settings"
   type        = map(bool)
@@ -45,4 +53,10 @@ variable "replication" {
     enabled = false
     is_leader = true
   }
+}
+
+# TYPESRIPT APP
+variable "avalanche_rpc_url" {
+  description = "URL of the Avalanche public blockchain"
+  type        = string
 }

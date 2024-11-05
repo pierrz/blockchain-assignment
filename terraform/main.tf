@@ -19,7 +19,26 @@ resource "null_resource" "install_clickhouse" {
     command = <<-EOT
       #!/bin/bash
 
-      # Install
+      # Certificates and Nginx
+      sudo apt-get update
+      sudo apt-get install -y nginx
+      sudo systemctl start nginx
+      sudo systemctl enable nginx
+      sudo apt-get remove certbot
+      sudo snap install --classic -y certbot
+      sudo ln -s /snap/bin/certbot /usr/bin/certbot
+      sudo certbot certonly --nginx -d ${var.bctk_domain}
+
+      # Install TS app
+      sudo mkdir /opt/app
+      sudo chown -R demo:demo /opt/app
+      cd /opt/app
+      git clone https://${var.github_token}@github.com/username/repository.git .
+
+      # Environment
+      
+
+      # Install database
       sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
       curl -fsSL 'https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key' | sudo gpg --dearmor -o /usr/share/keyrings/clickhouse-keyring.gpg
       echo "deb [signed-by=/usr/share/keyrings/clickhouse-keyring.gpg] https://packages.clickhouse.com/deb stable main" | sudo tee \
@@ -60,20 +79,6 @@ resource "null_resource" "install_clickhouse" {
 #   }
 # }
 
-# # Data import configuration
-# resource "null_resource" "import_data" {
-#   depends_on = [null_resource.configure_clickhouse]
-
-#   provisioner "local-exec" {
-#     command = <<-EOT
-#       clickhouse-client -q "
-#         INSERT INTO ${local.database_name}.${local.table_name}
-#         FROM INFILE '/data/43114_txs.csv'
-#         FORMAT CSV;
-#       "
-#     EOT
-#   }
-# }
 
 output "clickhouse_connection" {
   value = {

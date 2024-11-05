@@ -8,6 +8,6 @@
     "modes": {
         "api": true,
         "import": false,
-        "realtime": false
+        "realtime": true
     }
 }
