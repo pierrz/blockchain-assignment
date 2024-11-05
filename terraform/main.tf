@@ -15,22 +15,22 @@ provider "scaleway" {
 }
 
 locals {
-  clickhouse_version = "24.10.1"
-  database_name     = var.clickhouse_db
-  table_name        = "transactions"
-  data_directory    = "/var/lib/clickhouse"
+  clickhouse_version  = "24.10.1"
+  database_name       = var.clickhouse_db
+  table_name          = "transactions"
+  data_directory      = "/var/lib/clickhouse"
 }
 
 # Create instance
 resource "scaleway_instance_ip" "public_ip" {}
 
 resource "scaleway_instance_server" "main" {
-  type = var.scaleway_instance_type
+  type  = var.scaleway_instance_type
   image = "ubuntu_jammy"
   ip_id = scaleway_instance_ip.public_ip.id
-  
+
   root_volume {
-    size_in_gb = 40
+    size_in_gb = 50
   }
 
   user_data = {
@@ -93,12 +93,11 @@ resource "null_resource" "setup_services" {
       "echo \"deb [signed-by=/usr/share/keyrings/clickhouse-keyring.gpg] https://packages.clickhouse.com/deb stable main\" | sudo tee /etc/apt/sources.list.d/clickhouse.list",
       "sudo apt-get update",
       "sudo apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version} clickhouse-keeper=${local.clickhouse_version}",
-      # "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version} clickhouse-keeper=${local.clickhouse_version}",
-      
+
       # Configure ClickHouse
       "sudo mkdir -p ${local.data_directory}",
       "sudo chown -R clickhouse:clickhouse ${local.data_directory}",
-      
+
       # Clone and setup application
       "sudo mkdir -p /opt/app",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/app",
@@ -106,12 +105,12 @@ resource "null_resource" "setup_services" {
       "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .",
       "sudo cp /opt/app/terraform/bctk.conf /etc/nginx/sites-available",
       "sudo ln -s /etc/nginx/sites-available/bctk.conf /etc/nginx/sites-enabled/bctk.conf",
-
+      
       # Setup SSL with Certbot
       "sudo snap install --classic certbot",
       "sudo ln -s /snap/bin/certbot /usr/bin/certbot",
       "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email admin@${var.bctk_domain}",
-      
+
       # Start services
       "sudo systemctl start clickhouse-server",
       "sudo systemctl enable clickhouse-server",

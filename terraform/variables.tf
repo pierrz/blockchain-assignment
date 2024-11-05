@@ -28,6 +28,10 @@ variable "scaleway_server_user" {
   description = "Username for deployment"
   type        = string
 }
+variable "scaleway_ssh_key_names" {
+  description = "SSH key names"
+  type        = string
+}
 
 # INSTANCE
 variable "bctk_domain" {
@@ -35,11 +39,13 @@ variable "bctk_domain" {
   type        = string
   default     = "default"
 }
+
 variable "github_token" {
   description = "GitHub PAT token"
   type        = string
   default     = "default"
 }
+
 variable "github_repo_name" {
   description = "GitHub repository"
   type        = string
@@ -48,13 +54,15 @@ variable "github_repo_name" {
 
 # CLICKHOUSE DB
 variable "clickhouse_ip" {
-  description = "ClickHouse IP"
+  description = "ClickHouse IP address"
   type        = string
 }
+
 variable "clickhouse_port" {
   description = "ClickHouse port"
   type        = number
 }
+
 variable "clickhouse_db" {
   description = "ClickHouse database name"
   type        = string
@@ -64,40 +72,45 @@ variable "clickhouse_user" {
   description = "ClickHouse default user"
   type        = string
 }
+
 variable "clickhouse_password" {
   description = "ClickHouse default user password"
   type        = string
   sensitive   = true
 }
+
 variable "data_path" {
   description = "Path to the transactions CSV file"
   type        = string
   default     = "../data"
 }
+
 variable "settings" {
   description = "ClickHouse performance and storage settings"
   type        = map(string)
-  default     = {
-    max_memory_usage          = "10000000000"  # 10GB
-    max_concurrent_queries    = "100"
-    parts_to_throw_insert    = "300"
-    max_partition_size_to_drop = "50000000000"
-    max_table_size_to_drop    = "0"            # Disable DROP TABLE by default
+  default = {
+    max_memory_usage            = "10000000000" # 10GB
+    max_concurrent_queries      = "100"
+    parts_to_throw_insert       = "300"
+    max_partition_size_to_drop  = "50000000000"
+    max_table_size_to_drop      = "0" # Disable DROP TABLE by default
   }
 }
+
 variable "retention" {
   description = "Data retention settings"
   type        = map(number)
-  default     = {
-    days_to_keep          = 90
-    cleanup_interval_sec  = 60
+  default = {
+    days_to_keep         = 90
+    cleanup_interval_sec = 60
   }
 }
+
 variable "replication" {
   description = "Replication settings"
   type        = map(bool)
-  default     = {
-    enabled = false
+  default = {
+    enabled    = false
     is_leader = true
   }
 }
