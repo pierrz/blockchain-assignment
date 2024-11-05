@@ -85,6 +85,9 @@ jobs:
     environment:
       name: production
     env:
+
+        TF_LOG: DEBUG
+
         # Scaleway credentials
         TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
         TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
