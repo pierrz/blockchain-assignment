@@ -22,7 +22,7 @@ variable "scaleway_zone" {
 variable "scaleway_instance_type" {
   description = "Scaleway Instance Type"
   type        = string
-  default     = "DEV1-M"  # 2 vCPUs, 4GB RAM
+  default     = "DEV1-M" # 2 vCPUs, 4GB RAM
 }
 variable "scaleway_server_user" {
   description = "Username for deployment"
@@ -89,11 +89,11 @@ variable "settings" {
   description = "ClickHouse performance and storage settings"
   type        = map(string)
   default = {
-    max_memory_usage            = "10000000000" # 10GB
-    max_concurrent_queries      = "100"
-    parts_to_throw_insert       = "300"
-    max_partition_size_to_drop  = "50000000000"
-    max_table_size_to_drop      = "0" # Disable DROP TABLE by default
+    max_memory_usage           = "10000000000" # 10GB
+    max_concurrent_queries     = "100"
+    parts_to_throw_insert      = "300"
+    max_partition_size_to_drop = "50000000000"
+    max_table_size_to_drop     = "0" # Disable DROP TABLE by default
   }
 }
 
@@ -110,7 +110,7 @@ variable "replication" {
   description = "Replication settings"
   type        = map(bool)
   default = {
-    enabled    = false
+    enabled   = false
     is_leader = true
   }
 }

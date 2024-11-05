@@ -15,10 +15,10 @@ provider "scaleway" {
 }
 
 locals {
-  clickhouse_version  = "24.10.1"
-  database_name       = var.clickhouse_db
-  table_name          = "transactions"
-  data_directory      = "/var/lib/clickhouse"
+  clickhouse_version = "24.10.1"
+  database_name      = var.clickhouse_db
+  table_name         = "transactions"
+  data_directory     = "/var/lib/clickhouse"
 }
 
 # Create instance
@@ -105,7 +105,7 @@ resource "null_resource" "setup_services" {
       "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .",
       "sudo cp /opt/app/terraform/bctk.conf /etc/nginx/sites-available",
       "sudo ln -s /etc/nginx/sites-available/bctk.conf /etc/nginx/sites-enabled/bctk.conf",
-      
+
       # Setup SSL with Certbot
       "sudo snap install --classic certbot",
       "sudo ln -s /snap/bin/certbot /usr/bin/certbot",
