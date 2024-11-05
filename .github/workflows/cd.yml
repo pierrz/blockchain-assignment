@@ -82,6 +82,8 @@ jobs:
 
   deployment:
     runs-on: ubuntu-latest
+    environment:
+      name: production
     env:
         # Scaleway credentials
         TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
