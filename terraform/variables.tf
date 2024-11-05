@@ -1,3 +1,42 @@
+# SCALEWAY
+variable "scaleway_access_key" {
+  description = "Scaleway Access Key"
+  type        = string
+}
+
+variable "scaleway_secret_key" {
+  description = "Scaleway Secret Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "scaleway_project_id" {
+  description = "Scaleway Project ID"
+  type        = string
+}
+
+variable "scaleway_zone" {
+  description = "Scaleway zone"
+  type        = string
+}
+
+variable "scaleway_server_user" {
+  description = "Scaleway Server User"
+  type        = string
+}
+
+
+variable "scaleway_instance_type" {
+  description = "Scaleway Instance Type"
+  type        = string
+  default     = "DEV1-M"  # 2 vCPUs, 4GB RAM
+}
+
+variable "scaleway_server_user" {
+  description = "Username for deployment"
+  type        = string
+}
+
 # INSTANCE
 variable "bctk_domain" {
   description = "(Sub)Domain where to deploy the app and get a certificate for"
@@ -16,16 +55,27 @@ variable "github_repo_name" {
 }
 
 # CLICKHOUSE DB
+variable "clickhouse_ip" {
+  description = "ClickHouse IP"
+  type        = string
+}
+variable "clickhouse_port" {
+  description = "ClickHouse port"
+  type        = number
+}
+variable "clickhouse_db" {
+  description = "ClickHouse database name"
+  type        = string
+}
+
 variable "clickhouse_user" {
   description = "ClickHouse default user"
   type        = string
-  default     = "default"
 }
 variable "clickhouse_password" {
   description = "ClickHouse default user password"
   type        = string
   sensitive   = true
-  default     = "clickhouse"  # Change this in production
 }
 variable "data_path" {
   description = "Path to the transactions CSV file"
@@ -60,7 +110,7 @@ variable "replication" {
   }
 }
 
-# TYPESRIPT APP
+# TYPESCRIPT APP
 variable "avalanche_rpc_url" {
   description = "URL of the Avalanche public blockchain"
   type        = string

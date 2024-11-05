@@ -1,3 +1,7 @@
+# TODO: improve the following logic in PRs -> after the CI workflow is successful/completed
+# - get the CD workflow to trigger
+# - avoid the CD workflow to get triggered from the main branch (as it is behind the current PR branch)
+
 name: "Check Deployment Condition"
 description: "Checks if deployment conditions are met"
 author: pierrz

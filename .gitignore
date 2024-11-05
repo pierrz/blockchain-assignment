@@ -3,7 +3,7 @@ node_modules/
 
 # Environment variables / Configs
 .env
-terraform/bctk.conf
+terraform/bctk_ssl.conf
 
 # Logs
 logs/
