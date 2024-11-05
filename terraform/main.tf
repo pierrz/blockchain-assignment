@@ -73,6 +73,7 @@ resource "scaleway_instance_server" "main" {
       - git
       - nginx
       - snapd
+      - ufw
 
       snap:
         commands:
@@ -103,10 +104,9 @@ resource "null_resource" "setup_services" {
   depends_on = [scaleway_instance_server.main]
 
   connection {
-    type = "ssh"
-    user = var.scaleway_server_user
-    host = scaleway_instance_ip.public_ipv4.address
-    # host        = scaleway_instance_ip.public_ip_ipv6.address
+    type        = "ssh"
+    user        = var.scaleway_server_user
+    host        = scaleway_instance_ip.public_ipv4.address
     private_key = var.scaleway_ssh_private_key
   }
 
@@ -142,6 +142,14 @@ resource "null_resource" "setup_services" {
       "npm install",
       "cd ..",
       "ln -s /opt/app/config /opt/app/dist/config",
+
+      # Setup UFW
+      "sudo ufw default deny incoming",
+      "sudo ufw default allow outgoing",
+      "sudo ufw allow 'OpenSSH'",
+      "sudo ufw allow 'Nginx Full'",
+      "sudo ufw enable",
+      "sudo systemctl enable nginx",
 
       # Setup Nginx
       "sudo cp ./terraform/bctk.conf /etc/nginx/sites-available/",
