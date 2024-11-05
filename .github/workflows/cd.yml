@@ -157,7 +157,10 @@ jobs:
       uses: ./.github/actions/terraform
       with:
         command: plan
-
+    
+    - name: Check Terraform
+      run: cat ${{ github.workspace }}/tmp/terraform_*.sh
+      
     - name: Apply Terraform configuration
       uses: ./.github/actions/terraform
       with:
