@@ -48,7 +48,6 @@ resource "scaleway_instance_server" "main" {
           shell: /bin/bash
           ssh_authorized_keys:
             - ${data.scaleway_account_ssh_key.cd_key.public_key}
-            # - ${file("${var.github_workspace}/id_key.pub")}
       
       package_update: true
       package_upgrade: true
