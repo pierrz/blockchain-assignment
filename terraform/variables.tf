@@ -24,6 +24,11 @@ variable "scaleway_instance_type" {
   type        = string
   default     = "DEV1-M" # 2 vCPUs, 4GB RAM
 }
+variable "scaleway_instance_size" {
+  description = "Scaleway Instance storage size in GB"
+  type        = number
+  default     = 40
+}
 variable "scaleway_server_user" {
   description = "Username for deployment"
   type        = string
