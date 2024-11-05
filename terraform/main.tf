@@ -29,11 +29,11 @@ locals {
 
 # Create instance
 resource "scaleway_instance_ip" "public_ip" {
-  type       = "routed_ipv4"
+  type = "routed_ipv4"
   # project_id = var.scaleway_project_id
 }
 resource "scaleway_instance_ip" "public_ip_ipv6" {
-  type       = "routed_ipv6"
+  type = "routed_ipv6"
   # project_id = var.scaleway_project_id
 }
 
