@@ -94,6 +94,7 @@ jobs:
         TF_VAR_scaleway_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
         TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
         TF_VAR_scaleway_ssh_key_names: ${{ secrets.SCALEWAY_SSH_KEY_NAMES }}
+        TF_VAR_scaleway_ssh_key_private: ${{ secrets.SSH_KEY }}
         TF_VAR_scaleway_zone: ${{ secrets.SCALEWAY_ZONE }}
 
         # Github secrets
@@ -133,7 +134,7 @@ jobs:
     - name: Create SSH key files
       run: |
         echo "${{ secrets.SSH_KEY }}" > ${{ github.workspace }}/id_key
-        chown ${{ secrets.SCALEWAY_SERVER_USER }}:${{ secrets.SCALEWAY_SERVER_USER }} ${{ github.workspace }}/id_key
+        # chown ${{ secrets.SCALEWAY_SERVER_USER }}:${{ secrets.SCALEWAY_SERVER_USER }} ${{ github.workspace }}/id_key
         chmod 644 ${{ github.workspace }}/id_key
         # echo "${{ secrets.SSH_KEY_PUB }}" > ${{ github.workspace }}/id_key.pub
         # chmod 600 ${{ github.workspace }}/id_key.pub

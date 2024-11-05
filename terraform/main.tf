@@ -88,7 +88,8 @@ resource "null_resource" "setup_services" {
     type        = "ssh"
     user        = var.scaleway_server_user
     host        = scaleway_instance_ip.public_ip.address
-    private_key = file("${var.github_workspace}/id_key")
+    private_key = var.scaleway_ssh_key_private
+    # private_key = file("${var.github_workspace}/id_key")
   }
 
   provisioner "remote-exec" {

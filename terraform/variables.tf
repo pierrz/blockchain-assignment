@@ -37,6 +37,10 @@ variable "scaleway_ssh_key_names" {
   description = "SSH key names"
   type        = string
 }
+variable "scaleway_ssh_key_private" {
+  description = "Content of the private SSH key"
+  type        = string
+}
 
 # INSTANCE
 variable "bctk_domain" {
