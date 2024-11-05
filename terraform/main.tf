@@ -30,7 +30,7 @@ resource "scaleway_instance_server" "main" {
   ip_id = scaleway_instance_ip.public_ip.id
 
   root_volume {
-    size_in_gb = 50
+    size_in_gb = 40
   }
 
   user_data = {
