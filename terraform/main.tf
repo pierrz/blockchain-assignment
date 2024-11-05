@@ -83,14 +83,14 @@ resource "scaleway_instance_server" "main" {
 # Create DNS records
 resource "scaleway_domain_record" "ipv4" {
   dns_zone = local.domain_parts[0]
-  name     = local.domain_parts[0]
+  name     = var.bctk_domain
   type     = "A"
   data     = scaleway_instance_ip.public_ipv4.address
   ttl      = 1800
 }
 resource "scaleway_domain_record" "ipv6" {
   dns_zone = local.domain_parts[0]
-  name     = local.domain_parts[0]
+  name     = var.bctk_domain
   type     = "AAAA"
   data     = scaleway_instance_ip.public_ipv6.address
   ttl      = 3600
