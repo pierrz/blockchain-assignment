@@ -186,12 +186,12 @@ resource "null_resource" "setup_services" {
 }
 
 output "instance_ip" {
-  value = scaleway_instance_ip.public_ip.address
+  value = scaleway_instance_ip.public_ip_ipv6.address
 }
 
 output "clickhouse_connection" {
   value = {
-    host      = scaleway_instance_ip.public_ip.address
+    host      = scaleway_instance_ip.public_ip_ipv6.address
     http_port = 8123
     tcp_port  = 9000
     database  = local.database_name
