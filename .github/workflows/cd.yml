@@ -134,9 +134,9 @@ jobs:
       run: |
         echo "${{ secrets.SSH_KEY }}" > ${{ github.workspace }}/id_key
         chmod 644 ${{ github.workspace }}/id_key
-        echo "${{ secrets.SSH_KEY_PUB }}" > ${{ github.workspace }}/id_key.pub
+        # echo "${{ secrets.SSH_KEY_PUB }}" > ${{ github.workspace }}/id_key.pub
         # chmod 600 ${{ github.workspace }}/id_key.pub
-        # ls -al ${{ github.workspace }}
+        ls -al ${{ github.workspace }}
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2

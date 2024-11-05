@@ -14,7 +14,7 @@ provider "scaleway" {
   zone       = var.scaleway_zone
 }
 
-data "scaleway_account_ssh_key" "ssh_key" {
+data "scaleway_account_ssh_key" "cd_key" {
   name       = var.scaleway_ssh_key_names
   project_id = var.scaleway_project_id
 }
@@ -47,7 +47,7 @@ resource "scaleway_instance_server" "main" {
           groups: sudo
           shell: /bin/bash
           ssh_authorized_keys:
-            - ${data.scaleway_account_ssh_key.ssh_key}
+            - ${data.scaleway_account_ssh_key.cd_key.public_key}
             # - ${file("${var.github_workspace}/id_key.pub")}
       
       package_update: true
