@@ -149,19 +149,41 @@ resource "null_resource" "setup_services" {
       "echo 'CLICKHOUSE_USER=${var.clickhouse_user}' >> .env",
       "echo 'CLICKHOUSE_PASSWORD=${var.clickhouse_password}' >> .env",
       "echo 'AVALANCHE_RPC_URL=${var.avalanche_rpc_url}' >> .env",
-      "echo 'NODE_ENV=production' >> .env",
+      # "echo 'NODE_ENV=production' >> .env",
 
-      # Start services
+      # Start Typescript components
+      # "npm start"
+      # Create systemd service file
+      "sudo tee /etc/systemd/system/blockchain-app.service << EOF",
+      "[Unit]",
+      "Description=Blockchain Application",
+      "After=network.target clickhouse-server.service",
+
+      "[Service]",
+      "Type=simple",
+      "User=${var.scaleway_server_user}",
+      "WorkingDirectory=/opt/app",
+      "Environment=NODE_ENV=production",
+      "ExecStart=/usr/bin/npm start",
+      "Restart=always",
+      "RestartSec=10",
+
+      "[Install]",
+      "WantedBy=multi-user.target",
+      "EOF",
+
+      # Reload systemd, enable and start the service
       "echo 'Starting services ...'",
+      "sudo systemctl daemon-reload",
       "sudo systemctl start clickhouse-server",
       "sudo systemctl enable clickhouse-server",
       "sudo systemctl start clickhouse-keeper",
       "sudo systemctl enable clickhouse-keeper",
       "sudo systemctl restart nginx",
       "sudo systemctl enable nginx",
+      "sudo systemctl enable blockchain-app",
+      "sudo systemctl start blockchain-app"
 
-      # Start Typescript components
-      "npm start"
     ]
   }
 }
