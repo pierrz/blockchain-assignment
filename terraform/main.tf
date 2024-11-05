@@ -38,65 +38,66 @@ resource "scaleway_instance_server" "main" {
   root_volume {
     size_in_gb = var.scaleway_instance_size
   }
-
-  # user_data = var.user_data
-  # user_data = {
-  #   cloud-init = <<-EOF
-  #     #cloud-config
-  #     users:
-  #       - name: ${var.scaleway_server_user}
-  #         sudo: ['ALL=(ALL) NOPASSWD:ALL']
-  #         groups: sudo
-  #         shell: /bin/bash
-  #         ssh_authorized_keys:
-  #           - ${data.scaleway_account_ssh_key.cd_key.public_key}
-
-  #     apt-update: true
-  #     apt-upgrade: true
-
-  #     packages:
-  #       - apt-transport-https
-  #       - ca-certificates
-  #       - curl
-  #       - gnupg
-  #       - nginx
-  #       - git
-  #   EOF
-  # }
-}
-
-variable "user_data" {
-  type = map(any)
-  default = {
-    "cloud-init" = <<-EOF
-        #cloud-config
+  user_data = {
+    cloud-init = <<-EOF
+      #cloud-config
       users:
-        - name: ${var.scaleway_server_user}
-          sudo: ['ALL=(ALL) NOPASSWD:ALL']
-          groups: sudo
-          shell: /bin/bash
-          ssh_authorized_keys:
-            - ${data.scaleway_account_ssh_key.cd_key.public_key}
-      
-      apt-update: true
-      apt-upgrade: true
-      
+      - name: ${var.scaleway_server_user}
+        sudo: ['ALL=(ALL) NOPASSWD:ALL']
+        groups: sudo
+        shell: /bin/bash
+        ssh_authorized_keys:
+        - ${data.scaleway_account_ssh_key.cd_key.public_key}
+
+      package_update: true
+      package_upgrade: true
+
       packages:
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - gnupg
-        - nginx
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - apt:
         - git
+        - nginx
+      - snap:
+        - certbot
     EOF
   }
 }
-resource "scaleway_instance_user_data" "data" {
-  server_id = scaleway_instance_server.main.id
-  for_each  = var.user_data
-  key       = each.key
-  value     = each.value
-}
+
+# variable "user_data" {
+#   type = map(any)
+#   default = {
+#     "cloud-init" = <<-EOF
+#         #cloud-config
+#       users:
+#         - name: ${var.scaleway_server_user}
+#           sudo: ['ALL=(ALL) NOPASSWD:ALL']
+#           groups: sudo
+#           shell: /bin/bash
+#           ssh_authorized_keys:
+#             - ${data.scaleway_account_ssh_key.cd_key.public_key}
+
+#       apt-update: true
+#       apt-upgrade: true
+
+#       packages:
+#         - apt-transport-https
+#         - ca-certificates
+#         - curl
+#         - gnupg
+#         - nginx
+#         - git
+#     EOF
+#   }
+# }
+# resource "scaleway_instance_user_data" "data" {
+#   server_id = scaleway_instance_server.main.id
+#   for_each  = var.user_data
+#   key       = each.key
+#   value     = each.value
+# }
 
 # Create DNS records
 resource "scaleway_domain_record" "main" {
@@ -148,7 +149,7 @@ resource "null_resource" "setup_services" {
       "sudo ln -s /etc/nginx/sites-available/bctk.conf /etc/nginx/sites-enabled/bctk.conf",
 
       # Setup SSL with Certbot
-      "sudo snap install --classic certbot",
+      # "sudo snap install --classic certbot",
       "sudo ln -s /snap/bin/certbot /usr/bin/certbot",
       "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email admin@${var.bctk_domain}",
 
