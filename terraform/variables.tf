@@ -33,11 +33,11 @@ variable "scaleway_server_user" {
   description = "Username for deployment"
   type        = string
 }
-variable "scaleway_ssh_key_names" {
-  description = "SSH key names"
+variable "scaleway_ssh_pub_key_name" {
+  description = "SSH pub key name"
   type        = string
 }
-variable "scaleway_ssh_key_private" {
+variable "scaleway_ssh_private_key" {
   description = "Content of the private SSH key"
   type        = string
 }

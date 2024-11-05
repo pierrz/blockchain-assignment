@@ -2,7 +2,7 @@ terraform {
   required_providers {
     scaleway = {
       source  = "scaleway/scaleway"
-      version = "~> 2.0"
+      version = "~> 2.47"
     }
   }
 }
@@ -15,7 +15,7 @@ provider "scaleway" {
 }
 
 data "scaleway_account_ssh_key" "cd_key" {
-  name       = var.scaleway_ssh_key_names
+  name       = var.scaleway_ssh_pub_key_name
   project_id = var.scaleway_project_id
 }
 
@@ -31,7 +31,7 @@ resource "scaleway_instance_ip" "public_ip" {}
 
 resource "scaleway_instance_server" "main" {
   type  = var.scaleway_instance_type
-  image = "ubuntu_jammy"
+  image = "ubuntu_noble"    # ubuntu 24.04 LTS
   ip_id = scaleway_instance_ip.public_ip.id
 
   root_volume {
@@ -39,7 +39,7 @@ resource "scaleway_instance_server" "main" {
   }
 
   user_data = {
-    cloud-init = <<-EOF
+    cloud_init = <<-EOF
       #cloud-config
       users:
         - name: ${var.scaleway_server_user}
@@ -88,7 +88,7 @@ resource "null_resource" "setup_services" {
     type        = "ssh"
     user        = var.scaleway_server_user
     host        = scaleway_instance_ip.public_ip.address
-    private_key = var.scaleway_ssh_key_private
+    private_key = var.scaleway_ssh_private_key
     # private_key = file("${var.github_workspace}/id_key")
   }
 
