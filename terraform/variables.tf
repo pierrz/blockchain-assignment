@@ -9,6 +9,11 @@ variable "github_token" {
   type        = string
   default     = "default"
 }
+variable "github_repo_name" {
+  description = "GitHub repository"
+  type        = string
+  default     = "default"
+}
 
 # CLICKHOUSE DB
 variable "clickhouse_user" {

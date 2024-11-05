@@ -33,7 +33,7 @@ resource "null_resource" "install_clickhouse" {
       sudo mkdir /opt/app
       sudo chown -R demo:demo /opt/app
       cd /opt/app
-      git clone https://${var.github_token}@github.com/username/repository.git .
+      git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .
 
       # Environment
       
