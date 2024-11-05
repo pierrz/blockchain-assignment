@@ -10,7 +10,7 @@ terraform {
 provider "scaleway" {
   access_key = var.scaleway_access_key
   secret_key = var.scaleway_secret_key
-  project_id = var.scaleway_project_id
+  project_id = var.scaleway_project_id_main
   zone       = var.scaleway_zone
 }
 
@@ -30,9 +30,11 @@ locals {
 # Create instance
 resource "scaleway_instance_ip" "public_ip" {
   type = "routed_ipv4"
+  project_id = var.scaleway_project_id
 }
 resource "scaleway_instance_ip" "public_ip_ipv6" {
   type = "routed_ipv6"
+  project_id = var.scaleway_project_id
 }
 
 resource "scaleway_instance_server" "main" {
@@ -79,7 +81,14 @@ resource "scaleway_instance_server" "main" {
 }
 
 # Create DNS records
-resource "scaleway_domain_record" "main" {
+resource "scaleway_domain_record" "ipv4" {
+  dns_zone = local.domain_parts[0]
+  name     = local.domain_parts[0]
+  type     = "A"
+  data     = scaleway_instance_ip.public_ip_ipv6.address
+  ttl      = 1800
+}
+resource "scaleway_domain_record" "ipv6" {
   dns_zone = local.domain_parts[0]
   name     = local.domain_parts[0]
   type     = "AAAA"

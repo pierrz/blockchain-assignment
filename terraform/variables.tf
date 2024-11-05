@@ -14,6 +14,10 @@ variable "scaleway_project_id" {
   description = "Scaleway Project ID"
   type        = string
 }
+variable "scaleway_project_id_main" {
+  description = "Scaleway Project ID of the main project"
+  type        = string
+}
 
 variable "scaleway_zone" {
   description = "Scaleway zone"
