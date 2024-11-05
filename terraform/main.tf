@@ -163,12 +163,12 @@ resource "null_resource" "setup_services" {
 
       # Create .env
       "echo 'Creating .env file ...'",
-      "echo 'CLICKHOUSE_IP=${var.clickhouse_ip}' >> .env"
-      "echo 'CLICKHOUSE_PORT=${var.clickhouse_port}' >> .env"
-      "echo 'CLICKHOUSE_DB=${var.clickhouse_db}' >> .env"
-      "echo 'CLICKHOUSE_USER=${var.clickhouse_user}' >> .env"
-      "echo 'CLICKHOUSE_PASSWORD=${var.clickhouse_password}' >> .env"
-      "echo 'AVALANCHE_RPC_URL=${var.avalanche_rpc_url}' >> .env"
+      "echo 'CLICKHOUSE_IP=${var.clickhouse_ip}' >> .env",
+      "echo 'CLICKHOUSE_PORT=${var.clickhouse_port}' >> .env",
+      "echo 'CLICKHOUSE_DB=${var.clickhouse_db}' >> .env",
+      "echo 'CLICKHOUSE_USER=${var.clickhouse_user}' >> .env",
+      "echo 'CLICKHOUSE_PASSWORD=${var.clickhouse_password}' >> .env",
+      "echo 'AVALANCHE_RPC_URL=${var.avalanche_rpc_url}' >> .env",
 
       # Start services
       "echo 'Starting services ...'",
