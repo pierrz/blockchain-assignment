@@ -25,6 +25,8 @@ locals {
   table_name         = "transactions"
   data_directory     = "/var/lib/clickhouse"
   domain_parts       = split(".", var.bctk_domain)
+  sub_domain         = local.domain_parts[0]
+  root_domain        = "${local.domain_parts[1]}.${local.domain_parts[2]}"
 }
 
 # Create instance
@@ -82,15 +84,15 @@ resource "scaleway_instance_server" "main" {
 
 # Create DNS records
 resource "scaleway_domain_record" "ipv4" {
-  dns_zone = local.domain_parts[0] # Using the correct zone name
-  name     = "@"                   # @ represents the zone apex
+  dns_zone = local.root_domain
+  name     = local.sub_domain
   type     = "A"
   data     = scaleway_instance_ip.public_ipv4.address
   ttl      = 1800
 }
 resource "scaleway_domain_record" "ipv6" {
-  dns_zone = local.domain_parts[0] # Using the correct zone name
-  name     = "@"                   # @ represents the zone apex
+  dns_zone = local.root_domain
+  name     = local.sub_domain
   type     = "AAAA"
   data     = scaleway_instance_ip.public_ipv6.address
   ttl      = 3600
@@ -150,7 +152,7 @@ resource "null_resource" "setup_services" {
       # Setup SSL with Certbot
       "echo 'Configuring SSL ...'",
       "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
-      "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.domain_parts[0]}@${local.domain_parts[1]}.${local.domain_parts[2]}",
+      "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
 
       # Create .env
       "echo 'Creating .env file ...'",
