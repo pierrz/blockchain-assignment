@@ -52,6 +52,7 @@ services:
     <<: *bctk-app-env
     volumes:
       - ${DATA_DIR}:/srv/data
+      - ./config:/dist/config
     ports:
       - "3000:3000"
     networks:

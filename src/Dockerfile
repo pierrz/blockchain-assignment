@@ -27,7 +27,7 @@ RUN npm ci --only=production
 
 # Copy built files from builder stage
 COPY --from=builder ${WORKDIR}/dist .
-COPY --from=builder ${WORKDIR}/config ./config
+# COPY --from=builder ${WORKDIR}/config ./config
 
 # Set NODE_ENV
 ENV NODE_ENV=production
