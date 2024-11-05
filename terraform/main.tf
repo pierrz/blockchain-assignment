@@ -31,7 +31,7 @@ resource "scaleway_instance_ip" "public_ip" {}
 
 resource "scaleway_instance_server" "main" {
   type  = var.scaleway_instance_type
-  image = "ubuntu_noble"    # ubuntu 24.04 LTS
+  image = "ubuntu_noble" # ubuntu 24.04 LTS
   ip_id = scaleway_instance_ip.public_ip.id
 
   root_volume {
