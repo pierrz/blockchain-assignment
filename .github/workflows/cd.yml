@@ -114,7 +114,7 @@ jobs:
         TF_VAR_clickhouse_db: ${{ secrets.CLICKHOUSE_DB }}
         TF_VAR_clickhouse_user: ${{ secrets.CLICKHOUSE_USER }}
         TF_VAR_clickhouse_password: ${{ secrets.CLICKHOUSE_PASSWORD }}
-        TF_VAR_data_path: "../data"
+        # TF_VAR_data_path: "../data"
         TF_VAR_avalanche_rpc_url: ${{ secrets.AVALANCHE_RPC_URL }}
 
     needs: check-condition

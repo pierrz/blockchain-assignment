@@ -3,22 +3,15 @@ variable "scaleway_access_key" {
   description = "Scaleway Access Key"
   type        = string
 }
-
 variable "scaleway_secret_key" {
   description = "Scaleway Secret Key"
   type        = string
   sensitive   = true
 }
-
 variable "scaleway_project_id" {
   description = "Scaleway Project ID"
   type        = string
 }
-variable "scaleway_project_id_main" {
-  description = "Scaleway Project ID of the main project"
-  type        = string
-}
-
 variable "scaleway_zone" {
   description = "Scaleway zone"
   type        = string
@@ -65,12 +58,10 @@ variable "bctk_domain" {
   description = "(Sub)Domain where to deploy the app and get a certificate for"
   type        = string
 }
-
 variable "github_token" {
   description = "GitHub PAT token"
   type        = string
 }
-
 variable "github_repo_name" {
   description = "GitHub repository"
   type        = string
@@ -85,33 +76,29 @@ variable "clickhouse_ip" {
   description = "ClickHouse IP address"
   type        = string
 }
-
 variable "clickhouse_port" {
   description = "ClickHouse port"
   type        = number
 }
-
 variable "clickhouse_db" {
   description = "ClickHouse database name"
   type        = string
 }
-
 variable "clickhouse_user" {
   description = "ClickHouse default user"
   type        = string
 }
-
 variable "clickhouse_password" {
   description = "ClickHouse default user password"
   type        = string
   sensitive   = true
 }
 
-variable "data_path" {
-  description = "Path to the transactions CSV file"
-  type        = string
-  default     = "../data"
-}
+# variable "data_path" {
+#   description = "Path to the transactions CSV file"
+#   type        = string
+#   default     = "../data"
+# }
 
 variable "settings" {
   description = "ClickHouse performance and storage settings"
