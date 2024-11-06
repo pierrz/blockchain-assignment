@@ -26,6 +26,7 @@ locals {
   domain_parts       = split(".", var.bctk_domain)
   sub_domain         = local.domain_parts[0]
   root_domain        = "${local.domain_parts[1]}.${local.domain_parts[2]}"
+  region             = substr(var.scaleway_zone, 0, 6)
 }
 
 # Create instance
@@ -128,7 +129,23 @@ resource "null_resource" "setup_services" {
       "aws_secret_access_key = ${var.scaleway_secret_key}",
       "EOF",
       # "echo '${var.scaleway_awscli_config}'",
-      "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
+      # "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
+      "tee ~/.aws/config << EOF",
+      "[default]",
+      "region = ${local.region}",
+      "output = json",
+      "services = scw-${local.region}",
+      "s3 =",
+      "max_concurrent_requests = 100",
+      "max_queue_size = 1000",
+      "multipart_threshold = 50 MB",
+      "multipart_chunksize = 10 MB",
+      "[services scw-${local.region}]",
+      "s3 =",
+      "endpoint_url = https://s3.${local.region}.scw.cloud",
+      "EOF",
+
+      "echo 'Check AWS credentials...'",
       "cat ~/.aws/config",
       "cat ~/.aws/credentials",
 
@@ -168,12 +185,8 @@ resource "null_resource" "setup_services" {
       "CLONE_URI='https://${var.github_token}@github.com/${var.github_repo_name}.git'",
       "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch'",
       "git clone $CLONE_FLAGS $CLONE_URI /opt/app",
-      # "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .",
-      # "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git \",
-      # "   --branch ${var.github_repo_branch} \",
-      # "   --single-branch git@github.com:${var.github_repo_name}.git /opt/app",
       "npm install --no-package-lock --no-save /opt/app/src",
-      "ln -s /opt/app/config /opt/app/dist/config",
+      "ln -sf /opt/app/config/production.json /opt/app/dist/config/production.json",
 
       # Setup UFW
       "echo 'Configuring UFW ...'",
@@ -242,7 +255,8 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable blockchain-app",
       "sudo systemctl start blockchain-app",
 
-      "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/{}.sh \\;",
+      "mkdir -p /opt/app/tmp",
+      "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app{} \\;",
 
       # "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/terraform_script_part2.sh \\;",
       # "echo 'Provisioning completed at: $(date)'"
