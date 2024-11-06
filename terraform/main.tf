@@ -136,10 +136,13 @@ resource "null_resource" "setup_services" {
       "output = json",
       "services = scw-${local.region}",
       "s3 =",
-      "max_concurrent_requests = 100",
-      "max_queue_size = 1000",
-      "multipart_threshold = 50 MB",
-      "multipart_chunksize = 10 MB",
+      "  max_concurrent_requests = 100",
+      "  max_queue_size = 1000",
+      "  multipart_threshold = 50 MB",
+      "  multipart_chunksize = 10 MB",
+      "[services scw-${local.region}]",
+      "s3 =",
+      "  endpoint_url = https://s3.${local.region}.scw.cloud",
       "EOF",
 
       "echo 'Check AWS credentials...'",
@@ -162,13 +165,13 @@ resource "null_resource" "setup_services" {
 
       # Install ClickHouse
       "echo 'Installing ClickHouse ...'",
-
       "curl -fsSL 'https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key' | sudo gpg --dearmor -o /usr/share/keyrings/clickhouse-keyring.gpg",
       "echo 'deb [signed-by=/usr/share/keyrings/clickhouse-keyring.gpg] https://packages.clickhouse.com/deb stable main' | sudo tee /etc/apt/sources.list.d/clickhouse.list",
       # "curl -fsSL https://packages.clickhouse.com/deb/clickhouse.list | sudo tee /etc/apt/sources.list.d/clickhouse.list",
       # "curl -fsSL https://packages.clickhouse.com/deb/clickhouse-keyring.gpg | sudo tee /etc/apt/trusted.gpg.d/clickhouse-keyring.gpg > /dev/null",
       "sudo apt-get update",
-      "sudo apt-get install -y clickhouse-server clickhouse-client clickhouse-keeper",
+      # "sudo apt-get install -y clickhouse-server clickhouse-client clickhouse-keeper",
+      "sudo apt-get install -y clickhouse-server clickhouse-client",
       # "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server clickhouse-client clickhouse-keeper",
 
       # # Configure ClickHouse
@@ -196,8 +199,15 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable ufw",
 
       # Setup Nginx
-      "echo 'Setting up Nginx...'",
-      "sudo cp /opt/app/terraform/bctk.conf /etc/nginx/sites-available/",
+      "echo 'Setting up Nginx ...'",
+      # "sudo cp /opt/app/terraform/bctk.conf /etc/nginx/sites-available/",
+      "NGINX_CONF_TEMPLATE=$(cat /opt/app/terraform/bctk.conf)",
+      "sudo tee /etc/nginx/sites-available/bctk.conf << EOF",
+      "server {",
+      "server_name ${var.bctk_domain};",
+      "$NGINX_CONF_TEMPLATE",
+      "}",
+      "EOF",
       "sudo ln -sf /etc/nginx/sites-available/bctk.conf /etc/nginx/sites-enabled/bctk.conf",
       "sudo rm -f /etc/nginx/sites-enabled/default",
       "sudo nginx -t",
