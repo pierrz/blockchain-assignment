@@ -156,8 +156,10 @@ jobs:
 
         # Delete previous DNS records
         echo 'Deleting previous DNS records ...'
-        scw dns record delete ${local.root_domain} name=${local.sub_domain} type=A
-        scw dns record delete ${local.root_domain} name=${local.sub_domain} type=AAAA
+        ROOT_DOMAIN=${${{ secrets.BCTK_DOMAIN }}#.*}
+        SUB_DOMAIN=$(echo ${{ secrets.BCTK_DOMAIN }} | cut -d'.' -f1)
+        scw dns record delete $ROOT_DOMAIN name=$SUB_DOMAIN type=A
+        scw dns record delete $ROOT_DOMAIN name=$SUB_DOMAIN type=AAAA
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2
