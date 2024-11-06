@@ -81,42 +81,42 @@ resource "scaleway_instance_server" "main" {
   }
 }
 
-resource "null_resource" "delete_dns" {
-  depends_on = [scaleway_instance_server.main]
+# resource "null_resource" "delete_dns" {
+#   depends_on = [scaleway_instance_server.main]
 
-  connection {
-    type        = "ssh"
-    user        = var.scaleway_server_user
-    host        = scaleway_instance_ip.public_ipv4.address
-    private_key = var.scaleway_ssh_private_key
-  }
+#   connection {
+#     type        = "ssh"
+#     user        = var.scaleway_server_user
+#     host        = scaleway_instance_ip.public_ipv4.address
+#     private_key = var.scaleway_ssh_private_key
+#   }
 
-  provisioner "remote-exec" {
-    inline = [
+#   provisioner "remote-exec" {
+#     inline = [
 
-      "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/{}.sh \\;",
+#       "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/{}.sh \\;",
 
-      # Install Scaleway CLI
-      "\necho 'Installing Scaleway CLI ...'",
-      "curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh",
-      "mkdir -p ~/.config/scw",
-      "tee ~/.config/scw/config.yaml << EOF",
-      "access_key: ${var.scaleway_access_key}",
-      "secret_key: ${var.scaleway_secret_key}",
-      "default_organization_id: ${var.scaleway_organization_id}",
-      "default_project_id: ${var.scaleway_project_id}",
-      "default_zone: ${var.scaleway_zone}",
-      "default_region: ${substr(var.scaleway_zone, 0, 6)}",
-      "api_url: https://api.scaleway.com",
-      "EOF",
+#       # Install Scaleway CLI
+#       "\necho 'Installing Scaleway CLI ...'",
+#       "curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh",
+#       "mkdir -p ~/.config/scw",
+#       "tee ~/.config/scw/config.yaml << EOF",
+#       "access_key: ${var.scaleway_access_key}",
+#       "secret_key: ${var.scaleway_secret_key}",
+#       "default_organization_id: ${var.scaleway_organization_id}",
+#       "default_project_id: ${var.scaleway_project_id}",
+#       "default_zone: ${var.scaleway_zone}",
+#       "default_region: ${substr(var.scaleway_zone, 0, 6)}",
+#       "api_url: https://api.scaleway.com",
+#       "EOF",
 
-      # Delete previous DNS records
-      "\necho 'Deleting previous DNS records ...'",
-      "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=A",
-      "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=AAAA",
-    ]
-  }
-}
+#       # Delete previous DNS records
+#       "\necho 'Deleting previous DNS records ...'",
+#       "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=A",
+#       "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=AAAA",
+#     ]
+#   }
+# }
 
 # Create DNS records
 resource "scaleway_domain_record" "ipv4" {
@@ -175,6 +175,7 @@ resource "null_resource" "setup_services" {
       "aws_access_key_id = ${var.scaleway_access_key}",
       "aws_secret_access_key = ${var.scaleway_secret_key}",
       "EOF",
+      "cat ~/.aws/config",
       "echo '${var.scaleway_awscli_config}'",
       "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
 

@@ -137,6 +137,28 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4.1.7
 
+    - name: Delete deprecated DNS records
+      run: |
+
+        # Install Scaleway CLI
+        echo 'Installing Scaleway CLI ...'
+        curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh
+        mkdir -p ~/.config/scw
+        tee ~/.config/scw/config.yaml << EOF
+        access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
+        secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        default_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
+        default_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
+        default_zone: ${{ secrets.SCALEWAY_ZONE }}
+        default_region: ${${{ secrets.SCALEWAY_ZONE }}:0:-2}
+        api_url: https://api.scaleway.com
+        EOF
+
+        # Delete previous DNS records
+        \necho 'Deleting previous DNS records ...'
+        scw dns record delete ${local.root_domain} name=${local.sub_domain} type=A
+        scw dns record delete ${local.root_domain} name=${local.sub_domain} type=AAAA
+
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3.1.2
 
