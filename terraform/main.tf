@@ -112,7 +112,7 @@ resource "null_resource" "setup_services" {
     inline = [
 
       # Setup AWS credentials using heredoc
-      "\necho 'Setting up AWS credentials...'",
+      "echo 'Setting up AWS credentials...'",
       "mkdir -p ~/.aws",
       "tee ~/.aws/credentials << EOF",
       "[default]",
@@ -124,21 +124,21 @@ resource "null_resource" "setup_services" {
       "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
 
       # Import data
-      "\necho 'Importing data from bucket ...'",
+      "echo 'Importing data from bucket ...'",
       "sudo mkdir -p /srv/data/source",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
       "aws s3 ls",
       "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')",
 
       # Install Node.js from NodeSource
-      "\necho 'Installing Node.js ...'",
+      "echo 'Installing Node.js ...'",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
       "sudo apt-get install -y nodejs",
       "node --version",
       "npm --version",
 
       # Install ClickHouse
-      "\necho 'Installing ClickHouse ...'",
+      "echo 'Installing ClickHouse ...'",
       "curl -fsSL https://packages.clickhouse.com/deb/clickhouse.list | sudo tee /etc/apt/sources.list.d/clickhouse.list",
       "curl -fsSL https://packages.clickhouse.com/deb/clickhouse-keyring.gpg | sudo tee /etc/apt/trusted.gpg.d/clickhouse-keyring.gpg > /dev/null",
       "sudo apt-get update",
@@ -149,10 +149,10 @@ resource "null_resource" "setup_services" {
       # "sudo chown -R clickhouse:clickhouse ${local.data_directory}",
 
       # Clone and setup application
-      "\necho 'Clone and setup application ...'",
+      "echo 'Clone and setup application ...'",
       "sudo mkdir -p /opt/app",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/app",
-      "CLONE_URI=https://${var.github_token}@github.com/${var.github_repo_name}.git",
+      "CLONE_URI='https://${var.github_token}@github.com/${var.github_repo_name}.git'",
       "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch git@github.com:${var.github_repo_name}.git'",
       "git clone $CLONE_URI $CLONE_FLAGS /opt/app",
       # "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .",
@@ -163,7 +163,7 @@ resource "null_resource" "setup_services" {
       "ln -s /opt/app/config /opt/app/dist/config",
 
       # Setup UFW
-      "\necho 'Configuring UFW ...'",
+      "echo 'Configuring UFW ...'",
       "sudo ufw --force reset",
       "sudo ufw default deny incoming",
       "sudo ufw default allow outgoing",
@@ -173,20 +173,20 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable ufw",
 
       # Setup Nginx
-      "\necho 'Setting up Nginx...'",
+      "echo 'Setting up Nginx...'",
       "sudo cp /opt/app/terraform/bctk.conf /etc/nginx/sites-available/",
       "sudo ln -sf /etc/nginx/sites-available/bctk.conf /etc/nginx/sites-enabled/bctk.conf",
       "sudo rm -f /etc/nginx/sites-enabled/default",
       "sudo nginx -t",
 
       # Setup SSL with Certbot
-      "\necho 'Configuring SSL ...'",
+      "echo 'Configuring SSL ...'",
       "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
       "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
       "sudo nginx -t",
 
       # Create .env
-      "\necho 'Creating .env file ...'",
+      "echo 'Creating .env file ...'",
       "tee /opt/app/.env << EOF",
       "CLICKHOUSE_IP=${var.clickhouse_ip}",
       "CLICKHOUSE_PORT=${var.clickhouse_port}",
@@ -198,7 +198,7 @@ resource "null_resource" "setup_services" {
       "EOF",
 
       # Create service for Typescript components
-      "\necho 'Creating blockchain service...'",
+      "echo 'Creating blockchain service...'",
       "sudo tee /etc/systemd/system/blockchain-app.service << EOF",
       "[Unit]",
       "Description=Blockchain Application",
@@ -218,7 +218,7 @@ resource "null_resource" "setup_services" {
       "EOF",
 
       # Reload systemd, enable and start the service
-      "\necho 'Starting services ...'",
+      "echo 'Starting services ...'",
       "sudo systemctl daemon-reload",
       "sudo systemctl start clickhouse-server",
       "sudo systemctl enable clickhouse-server",
@@ -232,7 +232,7 @@ resource "null_resource" "setup_services" {
       "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/{}.sh \\;",
 
       # "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/terraform_script_part2.sh \\;",
-      # "\necho 'Provisioning completed at: $(date)'"
+      # "echo 'Provisioning completed at: $(date)'"
     ]
   }
 }
