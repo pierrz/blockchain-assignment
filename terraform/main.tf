@@ -48,6 +48,7 @@ resource "scaleway_instance_server" "main" {
   root_volume {
     size_in_gb = var.scaleway_instance_size
   }
+
   user_data = {
     cloud-init = <<-EOF
       #cloud-config
@@ -71,6 +72,7 @@ resource "scaleway_instance_server" "main" {
       - nginx
       - snapd
       - ufw
+      - unzip
 
       snap:
         commands:
@@ -112,6 +114,7 @@ resource "null_resource" "setup_services" {
     inline = [
 
       # Install AWS CLI
+      "echo 'Installing AWS CLI ...'",
       "curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'",
       "unzip awscliv2.zip",
       "sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update",
@@ -124,9 +127,10 @@ resource "null_resource" "setup_services" {
       "aws_access_key_id = ${var.scaleway_access_key}",
       "aws_secret_access_key = ${var.scaleway_secret_key}",
       "EOF",
-      "echo '${var.scaleway_awscli_config}'",
+      # "echo '${var.scaleway_awscli_config}'",
       "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
       "cat ~/.aws/config",
+      "cat ~/.aws/credentials",
 
       # Import data
       "echo 'Importing data from bucket ...'",
@@ -144,10 +148,14 @@ resource "null_resource" "setup_services" {
 
       # Install ClickHouse
       "echo 'Installing ClickHouse ...'",
-      "curl -fsSL https://packages.clickhouse.com/deb/clickhouse.list | sudo tee /etc/apt/sources.list.d/clickhouse.list",
-      "curl -fsSL https://packages.clickhouse.com/deb/clickhouse-keyring.gpg | sudo tee /etc/apt/trusted.gpg.d/clickhouse-keyring.gpg > /dev/null",
+
+      "curl -fsSL 'https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key' | sudo gpg --dearmor -o /usr/share/keyrings/clickhouse-keyring.gpg",
+      "echo 'deb [signed-by=/usr/share/keyrings/clickhouse-keyring.gpg] https://packages.clickhouse.com/deb stable main' | sudo tee /etc/apt/sources.list.d/clickhouse.list",
+      # "curl -fsSL https://packages.clickhouse.com/deb/clickhouse.list | sudo tee /etc/apt/sources.list.d/clickhouse.list",
+      # "curl -fsSL https://packages.clickhouse.com/deb/clickhouse-keyring.gpg | sudo tee /etc/apt/trusted.gpg.d/clickhouse-keyring.gpg > /dev/null",
       "sudo apt-get update",
-      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server clickhouse-client clickhouse-keeper",
+      "sudo apt-get install -y clickhouse-server clickhouse-client clickhouse-keeper",
+      # "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server clickhouse-client clickhouse-keeper",
 
       # # Configure ClickHouse
       # "sudo mkdir -p ${local.data_directory}",
@@ -158,8 +166,8 @@ resource "null_resource" "setup_services" {
       "sudo mkdir -p /opt/app",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/app",
       "CLONE_URI='https://${var.github_token}@github.com/${var.github_repo_name}.git'",
-      "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch git@github.com:${var.github_repo_name}.git'",
-      "git clone $CLONE_URI $CLONE_FLAGS /opt/app",
+      "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch'",
+      "git clone $CLONE_FLAGS $CLONE_URI /opt/app",
       # "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .",
       # "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git \",
       # "   --branch ${var.github_repo_branch} \",
