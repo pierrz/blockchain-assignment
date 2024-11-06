@@ -150,7 +150,7 @@ jobs:
         default_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
         default_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
         default_zone: ${{ secrets.SCALEWAY_ZONE }}
-        default_region: ${${{ secrets.SCALEWAY_ZONE }}:0:-2}
+        default_region: $(echo "${${{ secrets.SCALEWAY_ZONE }}:0:-2}")
         api_url: https://api.scaleway.com
         EOF
 
