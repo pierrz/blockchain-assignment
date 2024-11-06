@@ -167,6 +167,8 @@ resource "null_resource" "setup_services" {
       # "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=A",
       # "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=AAAA",
 
+      "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/{}.sh \\;",
+
       # Setup AWS credentials using heredoc
       "\necho 'Setting up AWS credentials...'",
       "mkdir -p ~/.aws",
