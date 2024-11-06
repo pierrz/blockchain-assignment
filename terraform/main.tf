@@ -230,7 +230,7 @@ resource "null_resource" "setup_services" {
       "sudo systemctl start blockchain-app",
 
       "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/{}.sh \\;",
-      
+
       # "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/terraform_script_part2.sh \\;",
       # "\necho 'Provisioning completed at: $(date)'"
     ]
