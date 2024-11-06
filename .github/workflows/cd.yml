@@ -141,6 +141,8 @@ jobs:
       run: |
 
         # Install Scaleway CLI
+        # ZONE=${{ secrets.SCALEWAY_ZONE }}
+        REGION=$(echo "${${{ secrets.SCALEWAY_ZONE }}:0:-2}")
         echo 'Installing Scaleway CLI ...'
         curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh
         mkdir -p ~/.config/scw
@@ -150,7 +152,7 @@ jobs:
         default_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
         default_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
         default_zone: ${{ secrets.SCALEWAY_ZONE }}
-        default_region: $(echo "${${{ secrets.SCALEWAY_ZONE }}:0:-2}")
+        default_region: $REGION 
         api_url: https://api.scaleway.com
         EOF
 
