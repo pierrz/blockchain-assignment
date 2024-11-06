@@ -110,21 +110,15 @@ resource "null_resource" "setup_services" {
 
   provisioner "remote-exec" {
     inline = [
-      # Create log directory and start logging
-      "mkdir -p /var/log/terraform",
-      "exec 1> >(tee -a /var/log/terraform/provision.log)",
-      "exec 2>&1",
-      "echo 'Starting provisioning at: $(date)'",
 
       # Setup AWS credentials using heredoc
       "echo 'Setting up AWS credentials...'",
       "mkdir -p ~/.aws",
-      "cat > ~/.aws/credentials << EOF",
+      "tee ~/.aws/credentials << EOF",
       "[default]",
       "aws_access_key_id = ${var.scaleway_access_key}",
       "aws_secret_access_key = ${var.scaleway_secret_key}",
       "EOF",
-      "sudo rm ~/.aws/config",
       "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
 
       # Import data
@@ -153,17 +147,15 @@ resource "null_resource" "setup_services" {
       # Clone and setup application
       "echo 'Installing Typescript components ...'",
       "sudo mkdir -p /opt/app",
-      "cd /opt/app",
+      # "cd /opt/app",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/app",
       # "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .",
-      "git clone " +
-      "--branch ${var.github_repo_branch} " +
-      "--single-branch git@github.com:${var.github_repo_name}.git " +
-      "/opt/app",
-      "ls -la",
-      "cd src",
-      "npm install",
-      "cd ..",
+      "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git \n",
+      "   --branch ${var.github_repo_branch} \n",
+      "   --single-branch git@github.com:${var.github_repo_name}.git /opt/app",
+      # "ls -la",
+      # "cd /opt/app/src",
+      "npm install --no-package-lock --no-save /opt/app/src",
       "ln -s /opt/app/config /opt/app/dist/config",
 
       # Setup UFW
@@ -178,7 +170,7 @@ resource "null_resource" "setup_services" {
 
       # Setup Nginx
       "echo 'Setting up Nginx...'",
-      "sudo cp ./terraform/bctk.conf /etc/nginx/sites-available/",
+      "sudo cp /opt/app/terraform/bctk.conf /etc/nginx/sites-available/",
       "sudo ln -sf /etc/nginx/sites-available/bctk.conf /etc/nginx/sites-enabled/bctk.conf",
       "sudo rm -f /etc/nginx/sites-enabled/default",
       "sudo nginx -t",
@@ -187,17 +179,19 @@ resource "null_resource" "setup_services" {
       "echo 'Configuring SSL ...'",
       "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
       "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
+      "sudo nginx -t",
 
       # Create .env
       "echo 'Creating .env file ...'",
-      "cd /opt/app",
-      "echo 'CLICKHOUSE_IP=${var.clickhouse_ip}' > .env",
-      "echo 'CLICKHOUSE_PORT=${var.clickhouse_port}' >> .env",
-      "echo 'CLICKHOUSE_DB=${var.clickhouse_db}' >> .env",
-      "echo 'CLICKHOUSE_USER=${var.clickhouse_user}' >> .env",
-      "echo 'CLICKHOUSE_PASSWORD=${var.clickhouse_password}' >> .env",
-      "echo 'AVALANCHE_RPC_URL=${var.avalanche_rpc_url}' >> .env",
+      "tee /opt/app/.env << EOF",
+      "CLICKHOUSE_IP=${var.clickhouse_ip}",
+      "CLICKHOUSE_PORT=${var.clickhouse_port}",
+      "CLICKHOUSE_DB=${var.clickhouse_db}",
+      "CLICKHOUSE_USER=${var.clickhouse_user}",
+      "CLICKHOUSE_PASSWORD=${var.clickhouse_password}",
+      "AVALANCHE_RPC_URL=${var.avalanche_rpc_url}",
       # "echo 'NODE_ENV=production' >> .env",
+      "EOF",
 
       # Create service for Typescript components
       "echo 'Creating blockchain service...'",
