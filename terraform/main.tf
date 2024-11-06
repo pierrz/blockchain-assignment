@@ -173,7 +173,8 @@ resource "null_resource" "setup_services" {
       "aws_access_key_id = ${var.scaleway_access_key}",
       "aws_secret_access_key = ${var.scaleway_secret_key}",
       "EOF",
-      "\necho '${var.scaleway_awscli_config}' >> ~/.aws/config",
+      "echo '${var.scaleway_awscli_config}'",
+      "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
 
       # Import data
       "\necho 'Importing data from bucket ...'",
@@ -201,13 +202,16 @@ resource "null_resource" "setup_services" {
       # "sudo chown -R clickhouse:clickhouse ${local.data_directory}",
 
       # Clone and setup application
-      "\necho 'Installing Typescript components ...'",
+      "\necho 'Clone and setup application ...'",
       "sudo mkdir -p /opt/app",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/app",
+      "CLONE_URI=https://${var.github_token}@github.com/${var.github_repo_name}.git",
+      "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch git@github.com:${var.github_repo_name}.git'",
+      "git clone $CLONE_URI $CLONE_FLAGS /opt/app",
       # "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .",
-      "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git \\n",
-      "   --branch ${var.github_repo_branch} \\n",
-      "   --single-branch git@github.com:${var.github_repo_name}.git /opt/app",
+      # "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git \",
+      # "   --branch ${var.github_repo_branch} \",
+      # "   --single-branch git@github.com:${var.github_repo_name}.git /opt/app",
       "npm install --no-package-lock --no-save /opt/app/src",
       "ln -s /opt/app/config /opt/app/dist/config",
 
