@@ -123,13 +123,13 @@ resource "null_resource" "setup_services" {
       # Setup AWS credentials using heredoc
       "echo 'Setting up AWS credentials...'",
       "mkdir -p ~/.aws",
+
       "tee ~/.aws/credentials << EOF",
       "[default]",
       "aws_access_key_id = ${var.scaleway_access_key}",
       "aws_secret_access_key = ${var.scaleway_secret_key}",
       "EOF",
-      # "echo '${var.scaleway_awscli_config}'",
-      # "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
+
       "tee ~/.aws/config << EOF",
       "[default]",
       "region = ${local.region}",
@@ -140,9 +140,6 @@ resource "null_resource" "setup_services" {
       "max_queue_size = 1000",
       "multipart_threshold = 50 MB",
       "multipart_chunksize = 10 MB",
-      "[services scw-${local.region}]",
-      "s3 =",
-      "endpoint_url = https://s3.${local.region}.scw.cloud",
       "EOF",
 
       "echo 'Check AWS credentials...'",
@@ -264,7 +261,10 @@ resource "null_resource" "setup_services" {
   }
 }
 
-output "instance_ip" {
+output "instance_ipv4" {
+  value = scaleway_instance_ip.public_ipv4.address
+}
+output "instance_ipv6" {
   value = scaleway_instance_ip.public_ipv6.address
 }
 
