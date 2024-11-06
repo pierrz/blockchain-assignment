@@ -145,15 +145,10 @@ resource "null_resource" "setup_services" {
       "  endpoint_url = https://s3.${local.region}.scw.cloud",
       "EOF",
 
-      "echo 'Check AWS credentials...'",
-      "cat ~/.aws/config",
-      "cat ~/.aws/credentials",
-
       # Import data
       "echo 'Importing data from bucket ...'",
       "sudo mkdir -p /srv/data/source",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
-      "aws s3 ls",
       "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')",
 
       # Install Node.js from NodeSource
@@ -200,7 +195,6 @@ resource "null_resource" "setup_services" {
 
       # Setup Nginx
       "echo 'Setting up Nginx ...'",
-      # "sudo cp /opt/app/terraform/bctk.conf /etc/nginx/sites-available/",
       "NGINX_CONF_TEMPLATE=$(cat /opt/app/terraform/bctk.conf)",
       "sudo tee /etc/nginx/sites-available/bctk.conf << EOF",
       "server {",
