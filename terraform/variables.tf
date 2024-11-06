@@ -46,6 +46,20 @@ variable "scaleway_ssh_private_key" {
   type        = string
 }
 
+# DATA
+variable "scaleway_awscli_config" {
+  description = "AWS CLI configuration"
+  type        = string
+}
+variable "data_bucket" {
+  description = "Scaleway bucket where the data is stored"
+  type        = string
+}
+variable "data_source" {
+  description = "Data filepath in bucket"
+  type        = string
+}
+
 # INSTANCE
 variable "bctk_domain" {
   description = "(Sub)Domain where to deploy the app and get a certificate for"

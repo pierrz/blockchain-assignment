@@ -10,13 +10,12 @@ terraform {
 provider "scaleway" {
   access_key = var.scaleway_access_key
   secret_key = var.scaleway_secret_key
-  project_id = var.scaleway_project_id_main
+  project_id = var.scaleway_project_id
   zone       = var.scaleway_zone
 }
 
 data "scaleway_account_ssh_key" "cd_key" {
   name       = var.scaleway_ssh_pub_key_name
-  project_id = var.scaleway_project_id
 }
 
 locals {
@@ -32,11 +31,9 @@ locals {
 # Create instance
 resource "scaleway_instance_ip" "public_ipv4" {
   type = "routed_ipv4"
-  # project_id = var.scaleway_project_id
 }
 resource "scaleway_instance_ip" "public_ipv6" {
   type = "routed_ipv6"
-  # project_id = var.scaleway_project_id
 }
 
 resource "scaleway_instance_server" "main" {
@@ -78,7 +75,8 @@ resource "scaleway_instance_server" "main" {
       snap:
         commands:
           - snap wait system seed.loaded
-          - snap install --classic certbot
+          - snap install certbot --classic
+          - snap install aws-cli --classic
     EOF
   }
 }
@@ -89,7 +87,7 @@ resource "scaleway_domain_record" "ipv4" {
   name     = local.sub_domain
   type     = "A"
   data     = scaleway_instance_ip.public_ipv4.address
-  ttl      = 1800
+  ttl      = 3600
 }
 resource "scaleway_domain_record" "ipv6" {
   dns_zone = local.root_domain
@@ -112,6 +110,21 @@ resource "null_resource" "setup_services" {
 
   provisioner "remote-exec" {
     inline = [
+      # Setup AWS credentials
+      "mkdir -p ~/.aws",
+      "cat > ~/.aws/credentials << EOF",
+      "[default]",
+      "aws_access_key_id = ${var.scaleway_access_key}",
+      "aws_secret_access_key = ${var.scaleway_secret_key}",
+      "EOF",
+      "sudo rm ~/.aws/config",
+      "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
+
+      # Import data
+      "sudo mkdir -p /srv/data/source",
+      "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
+      "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')",
+
       # Install Node.js from NodeSource
       "echo 'Installing Node.js ...'",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
@@ -144,12 +157,12 @@ resource "null_resource" "setup_services" {
 
       # Setup UFW
       "echo 'Configuring UFW ...'",
-      "sudo ufw --force reset", # Reset UFW to default state
+      "sudo ufw --force reset",
       "sudo ufw default deny incoming",
       "sudo ufw default allow outgoing",
       "sudo ufw allow 'OpenSSH'",
       "sudo ufw allow 'Nginx Full'",
-      "sudo ufw --force enable", # Enable UFW non-interactively
+      "sudo ufw --force enable",
       "sudo systemctl enable ufw",
 
       # Setup Nginx
