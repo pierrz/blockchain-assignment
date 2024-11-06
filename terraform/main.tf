@@ -111,6 +111,11 @@ resource "null_resource" "setup_services" {
   provisioner "remote-exec" {
     inline = [
 
+      # Install AWS CLI
+      "curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'",
+      "unzip awscliv2.zip",
+      "sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update",
+
       # Setup AWS credentials using heredoc
       "echo 'Setting up AWS credentials...'",
       "mkdir -p ~/.aws",
@@ -119,9 +124,9 @@ resource "null_resource" "setup_services" {
       "aws_access_key_id = ${var.scaleway_access_key}",
       "aws_secret_access_key = ${var.scaleway_secret_key}",
       "EOF",
-      "cat ~/.aws/config",
       "echo '${var.scaleway_awscli_config}'",
       "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
+      "cat ~/.aws/config",
 
       # Import data
       "echo 'Importing data from bucket ...'",
