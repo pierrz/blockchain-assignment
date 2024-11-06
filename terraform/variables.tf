@@ -66,6 +66,10 @@ variable "github_repo_name" {
   description = "GitHub repository"
   type        = string
 }
+variable "github_repo_branch" {
+  description = "Branch to use with this GitHub repository"
+  type        = string
+}
 variable "github_workspace" {
   description = "GitHub Actions workspace"
   type        = string

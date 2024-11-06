@@ -155,7 +155,11 @@ resource "null_resource" "setup_services" {
       "sudo mkdir -p /opt/app",
       "cd /opt/app",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/app",
-      "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .",
+      # "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .",
+      "git clone " +
+      "--branch ${var.github_repo_branch} " +
+      "--single-branch git@github.com:${var.github_repo_name}.git " +
+      "/opt/app",
       "ls -la",
       "cd src",
       "npm install",
