@@ -111,6 +111,24 @@ resource "null_resource" "setup_services" {
   provisioner "remote-exec" {
     inline = [
 
+      # Install Scaleway CLI
+      "echo 'Installing Scaleway CLI ...'",
+      "curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh",
+      "tee ~/.config/scw/config.yaml << EOF",
+      "access_key: ${var.scaleway_access_key}",
+      "secret_key: ${var.scaleway_secret_key}",
+      "default_organization_id: ${var.scaleway_organization_id}",
+      "default_project_id: ${var.scaleway_project_id}",
+      "default_zone: ${var.scaleway_zone}",
+      "default_region: ${substr(var.scaleway_zone, 0, 6)}",
+      "api_url: https://api.scaleway.com",
+      "EOF",
+
+      # Delete previous DNS records
+      "echo 'Deleting previous DNS records ...'",
+      "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=A",
+      "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=AAAA",
+
       # Setup AWS credentials using heredoc
       "echo 'Setting up AWS credentials...'",
       "mkdir -p ~/.aws",
@@ -122,6 +140,7 @@ resource "null_resource" "setup_services" {
       "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
 
       # Import data
+      "echo 'Importing data from bucket ...'",
       "sudo mkdir -p /srv/data/source",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
       "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')",
@@ -225,6 +244,7 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable blockchain-app",
       "sudo systemctl start blockchain-app",
 
+      "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/terraform_script.sh \\;",
       "echo 'Provisioning completed at: $(date)'"
     ]
   }

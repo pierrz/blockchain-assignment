@@ -8,6 +8,10 @@ variable "scaleway_secret_key" {
   type        = string
   sensitive   = true
 }
+variable "scaleway_organization_id" {
+  description = "Scaleway Organization ID"
+  type        = string
+}
 variable "scaleway_project_id" {
   description = "Scaleway Project ID"
   type        = string

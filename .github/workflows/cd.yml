@@ -91,6 +91,7 @@ jobs:
         # Scaleway credentials
         TF_VAR_scaleway_access_key: ${{ secrets.SCALEWAY_ACCESS_KEY }}
         TF_VAR_scaleway_secret_key: ${{ secrets.SCALEWAY_SECRET_KEY }}
+        TF_VAR_scaleway_organization_id: ${{ secrets.SCALEWAY_ORGANIZATION_ID }}
         TF_VAR_scaleway_project_id: ${{ secrets.SCALEWAY_PROJECT_ID }}
         TF_VAR_scaleway_server_user: ${{ secrets.SCALEWAY_SERVER_USER }}
         TF_VAR_scaleway_ssh_pub_key_name: ${{ secrets.SCALEWAY_SSH_PUB_KEY_NAME }}
