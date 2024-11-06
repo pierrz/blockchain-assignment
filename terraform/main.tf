@@ -15,8 +15,7 @@ provider "scaleway" {
 }
 
 data "scaleway_account_ssh_key" "cd_key" {
-  name       = var.scaleway_ssh_pub_key_name
-  project_id = var.scaleway_project_id
+  name = var.scaleway_ssh_pub_key_name
 }
 
 locals {
@@ -111,7 +110,14 @@ resource "null_resource" "setup_services" {
 
   provisioner "remote-exec" {
     inline = [
-      # Setup AWS credentials
+      # Create log directory and start logging
+      "mkdir -p /var/log/terraform",
+      "exec 1> >(tee -a /var/log/terraform/provision.log)",
+      "exec 2>&1",
+      "echo 'Starting provisioning at: $(date)'",
+
+      # Setup AWS credentials using heredoc
+      "echo 'Setting up AWS credentials...'",
       "mkdir -p ~/.aws",
       "cat > ~/.aws/credentials << EOF",
       "[default]",
@@ -167,6 +173,7 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable ufw",
 
       # Setup Nginx
+      "echo 'Setting up Nginx...'",
       "sudo cp ./terraform/bctk.conf /etc/nginx/sites-available/",
       "sudo ln -sf /etc/nginx/sites-available/bctk.conf /etc/nginx/sites-enabled/bctk.conf",
       "sudo rm -f /etc/nginx/sites-enabled/default",
@@ -189,6 +196,7 @@ resource "null_resource" "setup_services" {
       # "echo 'NODE_ENV=production' >> .env",
 
       # Create service for Typescript components
+      "echo 'Creating blockchain service...'",
       "sudo tee /etc/systemd/system/blockchain-app.service << EOF",
       "[Unit]",
       "Description=Blockchain Application",
@@ -217,7 +225,9 @@ resource "null_resource" "setup_services" {
       "sudo systemctl restart nginx",
       "sudo systemctl enable nginx",
       "sudo systemctl enable blockchain-app",
-      "sudo systemctl start blockchain-app"
+      "sudo systemctl start blockchain-app",
+
+      "echo 'Provisioning completed at: $(date)'"
     ]
   }
 }
