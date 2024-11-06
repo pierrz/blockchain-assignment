@@ -94,6 +94,8 @@ resource "null_resource" "delete_dns" {
   provisioner "remote-exec" {
     inline = [
 
+      "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/{}.sh \\;",
+
       # Install Scaleway CLI
       "\necho 'Installing Scaleway CLI ...'",
       "curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh",
@@ -112,9 +114,6 @@ resource "null_resource" "delete_dns" {
       "\necho 'Deleting previous DNS records ...'",
       "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=A",
       "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=AAAA",
-
-      "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/terraform_script_part1.sh \\;",
-      "find /tmp -name 'terraform_*.sh' -exec rm {} \\;",
     ]
   }
 }
@@ -285,8 +284,8 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable blockchain-app",
       "sudo systemctl start blockchain-app",
 
-      "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/terraform_script_part2.sh \\;",
-      "\necho 'Provisioning completed at: $(date)'"
+      # "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/terraform_script_part2.sh \\;",
+      # "\necho 'Provisioning completed at: $(date)'"
     ]
   }
 }
