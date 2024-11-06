@@ -112,8 +112,9 @@ resource "null_resource" "setup_services" {
     inline = [
 
       # Install Scaleway CLI
-      "echo 'Installing Scaleway CLI ...'",
+      "\necho 'Installing Scaleway CLI ...'",
       "curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh",
+      "mkdir -p ~/.config/scw",
       "tee ~/.config/scw/config.yaml << EOF",
       "access_key: ${var.scaleway_access_key}",
       "secret_key: ${var.scaleway_secret_key}",
@@ -125,35 +126,35 @@ resource "null_resource" "setup_services" {
       "EOF",
 
       # Delete previous DNS records
-      "echo 'Deleting previous DNS records ...'",
+      "\necho 'Deleting previous DNS records ...'",
       "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=A",
       "scw dns record delete ${local.root_domain} name=${local.sub_domain} type=AAAA",
 
       # Setup AWS credentials using heredoc
-      "echo 'Setting up AWS credentials...'",
+      "\necho 'Setting up AWS credentials...'",
       "mkdir -p ~/.aws",
       "tee ~/.aws/credentials << EOF",
       "[default]",
       "aws_access_key_id = ${var.scaleway_access_key}",
       "aws_secret_access_key = ${var.scaleway_secret_key}",
       "EOF",
-      "echo '${var.scaleway_awscli_config}' >> ~/.aws/config",
+      "\necho '${var.scaleway_awscli_config}' >> ~/.aws/config",
 
       # Import data
-      "echo 'Importing data from bucket ...'",
+      "\necho 'Importing data from bucket ...'",
       "sudo mkdir -p /srv/data/source",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
       "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')",
 
       # Install Node.js from NodeSource
-      "echo 'Installing Node.js ...'",
+      "\necho 'Installing Node.js ...'",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
       "sudo apt-get install -y nodejs",
       "node --version",
       "npm --version",
 
       # Install ClickHouse
-      "echo 'Installing ClickHouse ...'",
+      "\necho 'Installing ClickHouse ...'",
       "curl -fsSL https://packages.clickhouse.com/deb/clickhouse.list | sudo tee /etc/apt/sources.list.d/clickhouse.list",
       "curl -fsSL https://packages.clickhouse.com/deb/clickhouse-keyring.gpg | sudo tee /etc/apt/trusted.gpg.d/clickhouse-keyring.gpg > /dev/null",
       "sudo apt-get update",
@@ -164,21 +165,18 @@ resource "null_resource" "setup_services" {
       # "sudo chown -R clickhouse:clickhouse ${local.data_directory}",
 
       # Clone and setup application
-      "echo 'Installing Typescript components ...'",
+      "\necho 'Installing Typescript components ...'",
       "sudo mkdir -p /opt/app",
-      # "cd /opt/app",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/app",
       # "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git .",
-      "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git \n",
-      "   --branch ${var.github_repo_branch} \n",
+      "git clone https://${var.github_token}@github.com/${var.github_repo_name}.git \\n",
+      "   --branch ${var.github_repo_branch} \\n",
       "   --single-branch git@github.com:${var.github_repo_name}.git /opt/app",
-      # "ls -la",
-      # "cd /opt/app/src",
       "npm install --no-package-lock --no-save /opt/app/src",
       "ln -s /opt/app/config /opt/app/dist/config",
 
       # Setup UFW
-      "echo 'Configuring UFW ...'",
+      "\necho 'Configuring UFW ...'",
       "sudo ufw --force reset",
       "sudo ufw default deny incoming",
       "sudo ufw default allow outgoing",
@@ -188,20 +186,20 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable ufw",
 
       # Setup Nginx
-      "echo 'Setting up Nginx...'",
+      "\necho 'Setting up Nginx...'",
       "sudo cp /opt/app/terraform/bctk.conf /etc/nginx/sites-available/",
       "sudo ln -sf /etc/nginx/sites-available/bctk.conf /etc/nginx/sites-enabled/bctk.conf",
       "sudo rm -f /etc/nginx/sites-enabled/default",
       "sudo nginx -t",
 
       # Setup SSL with Certbot
-      "echo 'Configuring SSL ...'",
+      "\necho 'Configuring SSL ...'",
       "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
       "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
       "sudo nginx -t",
 
       # Create .env
-      "echo 'Creating .env file ...'",
+      "\necho 'Creating .env file ...'",
       "tee /opt/app/.env << EOF",
       "CLICKHOUSE_IP=${var.clickhouse_ip}",
       "CLICKHOUSE_PORT=${var.clickhouse_port}",
@@ -213,7 +211,7 @@ resource "null_resource" "setup_services" {
       "EOF",
 
       # Create service for Typescript components
-      "echo 'Creating blockchain service...'",
+      "\necho 'Creating blockchain service...'",
       "sudo tee /etc/systemd/system/blockchain-app.service << EOF",
       "[Unit]",
       "Description=Blockchain Application",
@@ -233,7 +231,7 @@ resource "null_resource" "setup_services" {
       "EOF",
 
       # Reload systemd, enable and start the service
-      "echo 'Starting services ...'",
+      "\necho 'Starting services ...'",
       "sudo systemctl daemon-reload",
       "sudo systemctl start clickhouse-server",
       "sudo systemctl enable clickhouse-server",
@@ -245,7 +243,7 @@ resource "null_resource" "setup_services" {
       "sudo systemctl start blockchain-app",
 
       "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/terraform_script.sh \\;",
-      "echo 'Provisioning completed at: $(date)'"
+      "\necho 'Provisioning completed at: $(date)'"
     ]
   }
 }
