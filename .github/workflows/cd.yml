@@ -156,7 +156,8 @@ jobs:
 
         # Delete previous DNS records
         echo 'Deleting previous DNS records ...'
-        ROOT_DOMAIN=${${{ secrets.BCTK_DOMAIN }}#.*}
+        # ROOT_DOMAIN=${${{ secrets.BCTK_DOMAIN }}#.*}
+        ROOT_DOMAIN=$(echo "$(echo ${{ secrets.BCTK_DOMAIN }} | cut -d'.' -f2).$(echo ${{ secrets.BCTK_DOMAIN }} | cut -d'.' -f3)")
         SUB_DOMAIN=$(echo ${{ secrets.BCTK_DOMAIN }} | cut -d'.' -f1)
         scw dns record delete $ROOT_DOMAIN name=$SUB_DOMAIN type=A
         scw dns record delete $ROOT_DOMAIN name=$SUB_DOMAIN type=AAAA
