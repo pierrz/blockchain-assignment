@@ -155,7 +155,7 @@ jobs:
         EOF
 
         # Delete previous DNS records
-        \necho 'Deleting previous DNS records ...'
+        echo 'Deleting previous DNS records ...'
         scw dns record delete ${local.root_domain} name=${local.sub_domain} type=A
         scw dns record delete ${local.root_domain} name=${local.sub_domain} type=AAAA
 
