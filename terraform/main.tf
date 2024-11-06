@@ -15,7 +15,7 @@ provider "scaleway" {
 }
 
 data "scaleway_account_ssh_key" "cd_key" {
-  name       = var.scaleway_ssh_pub_key_name
+  name = var.scaleway_ssh_pub_key_name
 }
 
 locals {
