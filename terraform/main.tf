@@ -144,6 +144,7 @@ resource "null_resource" "setup_services" {
       "\necho 'Importing data from bucket ...'",
       "sudo mkdir -p /srv/data/source",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
+      "aws s3 ls",
       "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')",
 
       # Install Node.js from NodeSource
