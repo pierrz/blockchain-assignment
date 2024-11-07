@@ -51,9 +51,9 @@ resource "scaleway_instance_server" "main" {
   }
 
   provisioner "file" {
-  source      = "path/to/local/default-user.xml"
-  destination = "/etc/clickhouse-server/users.d/default-user.xml"
-}
+    source      = "path/to/local/default-user.xml"
+    destination = "/etc/clickhouse-server/users.d/default-user.xml"
+  }
 
 
   user_data = {
