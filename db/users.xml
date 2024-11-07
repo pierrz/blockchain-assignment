@@ -1,0 +1,21 @@
+<!-- /etc/clickhouse-server/users.d/users.xml -->
+<clickhouse>
+    <users>
+        <user1>
+            <password>password1</password>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>default</profile>
+            <quota>default</quota>
+        </user1>
+        <user2>
+            <password>password2</password>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>default</profile>
+            <quota>default</quota>
+        </user2>
+    </users>
+</clickhouse>
