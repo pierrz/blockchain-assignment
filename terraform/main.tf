@@ -50,12 +50,6 @@ resource "scaleway_instance_server" "main" {
     size_in_gb = var.scaleway_instance_size
   }
 
-  provisioner "file" {
-    source      = "path/to/local/default-user.xml"
-    destination = "/etc/clickhouse-server/users.d/default-user.xml"
-  }
-
-
   user_data = {
     cloud-init = <<-EOF
       #cloud-config
