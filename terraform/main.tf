@@ -162,8 +162,8 @@ resource "null_resource" "setup_services" {
       # TBD: dist directory and symlink config
       # "mkdir -p /opt/app/dist && cd /opt/app/dist",
       # "cd /opt/app/dist",
-      # "cd /opt/app",
-      "npm install --no-package-lock --no-save /opt/app",
+      "cd /opt/app",
+      "npm install --no-package-lock --no-save",
       # "npm install --no-package-lock --no-save /opt/app/src",
       # "npm install",
       # "ln -sf /opt/app/config /opt/app/dist/",
@@ -174,8 +174,6 @@ resource "null_resource" "setup_services" {
       "echo 'Installing ClickHouse ...'",
       "curl -fsSL 'https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key' | sudo gpg --dearmor -o /usr/share/keyrings/clickhouse-keyring.gpg",
       "echo 'deb [signed-by=/usr/share/keyrings/clickhouse-keyring.gpg] https://packages.clickhouse.com/deb stable main' | sudo tee /etc/apt/sources.list.d/clickhouse.list",
-      # "curl -fsSL https://packages.clickhouse.com/deb/clickhouse.list | sudo tee /etc/apt/sources.list.d/clickhouse.list",
-      # "curl -fsSL https://packages.clickhouse.com/deb/clickhouse-keyring.gpg | sudo tee /etc/apt/trusted.gpg.d/clickhouse-keyring.gpg > /dev/null",
       "sudo apt-get update",
       "USERS_CONFIG=/opt/app/db/users.xml",
       "sed -i 's/user1/${var.clickhouse_admin_user}/g' $USERS_CONFIG",
@@ -245,7 +243,6 @@ resource "null_resource" "setup_services" {
       "Type=simple",
       "User=${var.scaleway_server_user}",
       "WorkingDirectory=/opt/app",
-      # "Environment=NODE_ENV=production",
       "ExecStart=/usr/bin/npm start",
       "Restart=always",
       "RestartSec=10",
@@ -265,11 +262,13 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable nginx",
       "sudo systemctl enable blockchain-app",
       "sudo systemctl start blockchain-app",
-      "echo 'Provisioning completed at: $(date)'",
 
-      # Keep Terraform scripts for debugging purpose
+      # Save Terraform scripts (avoiding permission errors)
       "mkdir -p /opt/app/tmp",
-      "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app{} \\;",
+      "find /tmp -maxdepth 1 -name 'terraform_*.sh' -type f 2>/dev/null | xargs -I {} cp {} /opt/app/tmp/ || true",
+
+      # Print completion with actual date
+      "date | xargs -I {} echo 'Provisioning completed at: {}'",
     ]
   }
 }

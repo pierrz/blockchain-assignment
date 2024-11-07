@@ -56,7 +56,7 @@ services:
     <<: *bctk-app-env
     volumes:
       - ${DATA_DIR}:/srv/data
-      - ./config:/config
+      - ./config:/config:ro
       - ./dist:/dist
       - ./src:/src    # useful to enable respawn in dev mode (WIP)
     ports:
