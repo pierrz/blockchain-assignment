@@ -101,6 +101,24 @@ variable "clickhouse_password" {
   type        = string
   sensitive   = true
 }
+variable "clickhouse_admin_user" {
+  description = "ClickHouse default user"
+  type        = string
+}
+variable "clickhouse_admin_password" {
+  description = "ClickHouse default user password"
+  type        = string
+  sensitive   = true
+}
+variable "clickhouse_app_user" {
+  description = "ClickHouse default user"
+  type        = string
+}
+variable "clickhouse_app_password" {
+  description = "ClickHouse default user password"
+  type        = string
+  sensitive   = true
+}
 
 # variable "data_path" {
 #   description = "Path to the transactions CSV file"

@@ -50,6 +50,12 @@ resource "scaleway_instance_server" "main" {
     size_in_gb = var.scaleway_instance_size
   }
 
+  provisioner "file" {
+  source      = "path/to/local/default-user.xml"
+  destination = "/etc/clickhouse-server/users.d/default-user.xml"
+}
+
+
   user_data = {
     cloud-init = <<-EOF
       #cloud-config
@@ -120,7 +126,7 @@ resource "null_resource" "setup_services" {
       "unzip awscliv2.zip",
       "sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update",
 
-      # Setup AWS credentials using heredoc
+      # Setup AWS credentials 
       "echo 'Setting up AWS credentials...'",
       "mkdir -p ~/.aws",
 
@@ -151,6 +157,16 @@ resource "null_resource" "setup_services" {
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
       "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')",
 
+      # Clone and setup application
+      "echo 'Clone and setup application ...'",
+      "sudo mkdir -p /opt/app",
+      "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/app",
+      "CLONE_URI='https://${var.github_token}@github.com/${var.github_repo_name}.git'",
+      "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch'",
+      "git clone $CLONE_FLAGS $CLONE_URI /opt/app",
+      "npm install --no-package-lock --no-save /opt/app/src",
+      "ln -sf /opt/app/config/production.json /opt/app/dist/config/production.json",
+
       # Install Node.js from NodeSource
       "echo 'Installing Node.js ...'",
       "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
@@ -166,22 +182,19 @@ resource "null_resource" "setup_services" {
       # "curl -fsSL https://packages.clickhouse.com/deb/clickhouse-keyring.gpg | sudo tee /etc/apt/trusted.gpg.d/clickhouse-keyring.gpg > /dev/null",
       "sudo apt-get update",
       # "sudo apt-get install -y clickhouse-server clickhouse-client clickhouse-keeper",
-      "sudo apt-get install -y clickhouse-server clickhouse-client",
-      # "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server clickhouse-client clickhouse-keeper",
+      # "sudo apt-get install -y clickhouse-server clickhouse-client",
+      "USERS_CONFIG=/opt/app/db/users.xml",
+      "sed -i 's/user1/${var.clickhouse_admin_user}/g' $USERS_CONFIG",
+      "sed -i 's/password1/${var.clickhouse_admin_password}/g' $USERS_CONFIG",
+      "sed -i 's/user2/${var.clickhouse_app_user}/g' $USERS_CONFIG",
+      "sed -i 's/password2/${var.clickhouse_app_password}/g' $USERS_CONFIG",
+      "sudo mkdir -p /etc/clickhouse-server/users.d",
+      "sudo ln -s /opt/app/db/users.xml /etc/clickhouse-server/users.d/users.xml",
+      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version}",
 
       # # Configure ClickHouse
       # "sudo mkdir -p ${local.data_directory}",
       # "sudo chown -R clickhouse:clickhouse ${local.data_directory}",
-
-      # Clone and setup application
-      "echo 'Clone and setup application ...'",
-      "sudo mkdir -p /opt/app",
-      "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/app",
-      "CLONE_URI='https://${var.github_token}@github.com/${var.github_repo_name}.git'",
-      "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch'",
-      "git clone $CLONE_FLAGS $CLONE_URI /opt/app",
-      "npm install --no-package-lock --no-save /opt/app/src",
-      "ln -sf /opt/app/config/production.json /opt/app/dist/config/production.json",
 
       # Setup UFW
       "echo 'Configuring UFW ...'",
