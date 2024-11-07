@@ -20,13 +20,13 @@ data "scaleway_account_ssh_key" "cd_key" {
 
 locals {
   # clickhouse_version = "24.10.1.2812"
-  database_name      = var.clickhouse_db
-  table_name         = "transactions"
-  data_directory     = "/var/lib/clickhouse"
-  domain_parts       = split(".", var.bctk_domain)
-  sub_domain         = local.domain_parts[0]
-  root_domain        = "${local.domain_parts[1]}.${local.domain_parts[2]}"
-  region             = substr(var.scaleway_zone, 0, 6)
+  database_name  = var.clickhouse_db
+  table_name     = "transactions"
+  data_directory = "/var/lib/clickhouse"
+  domain_parts   = split(".", var.bctk_domain)
+  sub_domain     = local.domain_parts[0]
+  root_domain    = "${local.domain_parts[1]}.${local.domain_parts[2]}"
+  region         = substr(var.scaleway_zone, 0, 6)
 }
 
 # Create instance
