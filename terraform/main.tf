@@ -184,6 +184,7 @@ resource "null_resource" "setup_services" {
       "sed -i 's/password2/${var.clickhouse_app_password}/g' $USERS_CONFIG",
       "sudo mkdir -p /etc/clickhouse-server/users.d",
       "sudo ln -s /opt/app/db/users.xml /etc/clickhouse-server/users.d/users.xml",
+      "sudo ln -s /opt/app/db/startup_scripts.xml /etc/clickhouse-server/config.d/startup_scripts.xml",
       "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server clickhouse-client",
       # "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version}",
 
