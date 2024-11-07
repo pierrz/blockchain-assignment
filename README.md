@@ -8,7 +8,7 @@ Repository used for the Blockchain technical assignment.
 - [Schema](#schema)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-- [Deployment with Terraform (WIP)](#deployment-with-terraform-wip)
+- [Deployment with GitHub Actions and Terraform](#deployment-with-github-actions-and-terraform)
 - [APIs](#apis)
 - [Technical Debt](#technical-debt)
 
@@ -28,7 +28,7 @@ Cf. [`db/startup_scripts.xml`](db/startup_scripts.xml)
 
 ### Installation
 - Create the `.env` based on the provided [`.env.example`](.env.example)
-- Tweak `src/config/production.json`(src/config/production.json) to decide which Typescript components will be running (import, realtime, APIs).
+- Tweak the `src/config/*.json`(src/config) files to decide which Typescript components will be running (import, realtime, APIs).
 - If using the "import" mode, you have to put your source `.tar.gz` data in `$DATA_DIR` (Cf. `.env`)
 
 <br>
@@ -42,30 +42,24 @@ docker compose up --build
 
 <br>
 
-### Deployment with Terraform (WIP)
+### Deployment with GitHub Actions and Terraform
 
-The Terraform setup 
-- install this repository
+For this step, there are many secrets created in GitHub Actions 
+to support the CD workflow and the Terraform provisionning. 
+Follow what is available in the `.env` and `.github/workflows/cd.yml` files to gather what is required.
+
+The Terraform setup work:
+- fetch the sample data from a Scaleway bucket
+- install this repository and all the Node environment
 - install a ClickHouse database
 - install NGinx with the required configurations
+- implement a Letsencrypt certificate with Certbot 
 
-1. Initialize:
-```bash
-terraform init
-```
+NB: The last point is currently disabled 
+as a DNSSEC issue related to the created IPs or DNS records
+is still in the way (Scaleway support WIP).
 
-2. Configure (optional):
-```bash
-# terraform.tfvars
-clickhouse_user = "custom_user"
-clickhouse_password = "secure_password"
-```
-
-3. Deploy:
-```bash
-terraform apply
-```
-
+<br>
 
 ### APIs
 When using Docker, you can access the APIs via the following queries:
@@ -82,8 +76,10 @@ curl -s "http://localhost:3000/transactions/by-value?address=0x9702230A8Ea53601f
 curl -s "http://localhost:3000/transactions/count?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&
 ```
 
+<br>
+
 ### Technical Debt
-- Finalise Terraform setup
-- Implement complete authentication for ClicHouse
+- Implement complete authentication for ClicHouse in Compose setup (Terraform OK)
+- Multithreading and improved error handling for the Realtime mode.
 - Tests for the Typescript components
 - Linting, coverage

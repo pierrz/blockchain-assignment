@@ -141,7 +141,7 @@ resource "null_resource" "setup_services" {
 
       # Import data
       "echo 'Importing data from bucket ...'",
-      "sudo mkdir -p /srv/data/source",
+      "sudo mkdir -p /srv/data/source /srv/data/processed /srv/data/failed", # creating all data directories
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
       "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')",
 
@@ -159,16 +159,8 @@ resource "null_resource" "setup_services" {
       "CLONE_URI='https://${var.github_token}@github.com/${var.github_repo_name}.git'",
       "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch'",
       "git clone $CLONE_FLAGS $CLONE_URI /opt/app",
-      # TBD: dist directory and symlink config
-      # "mkdir -p /opt/app/dist && cd /opt/app/dist",
-      # "cd /opt/app/dist",
       "cd /opt/app",
       "npm install --no-package-lock --no-save",
-      # "npm install --no-package-lock --no-save /opt/app/src",
-      # "npm install",
-      # "ln -sf /opt/app/config /opt/app/dist/",
-      # "ln -sf /opt/app/src/package.json /opt/app/package.json",
-      # "ln -sf /opt/app/src/package-lock.json /opt/app/package-lock.json",
 
       # Install ClickHouse
       "echo 'Installing ClickHouse ...'",
@@ -185,10 +177,6 @@ resource "null_resource" "setup_services" {
       "sudo ln -s /opt/app/db/startup_scripts.xml /etc/clickhouse-server/config.d/startup_scripts.xml",
       "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server clickhouse-client",
       # "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version}",
-
-      # # Configure ClickHouse
-      # "sudo mkdir -p ${local.data_directory}",
-      # "sudo chown -R clickhouse:clickhouse ${local.data_directory}",
 
       # Setup UFW
       "echo 'Configuring UFW ...'",
@@ -263,9 +251,9 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable blockchain-app",
       "sudo systemctl start blockchain-app",
 
-      # Save Terraform scripts (avoiding permission errors)
-      "mkdir -p /opt/app/tmp",
-      "find /tmp -maxdepth 1 -name 'terraform_*.sh' -type f 2>/dev/null | xargs -I {} cp {} /opt/app/tmp/ || true",
+      # # Save Terraform scripts (avoiding permission errors)
+      # "mkdir -p /opt/app/tmp",
+      # "find /tmp -maxdepth 1 -name 'terraform_*.sh' -type f 2>/dev/null | xargs -I {} cp {} /opt/app/tmp/ || true",
 
       # Print completion with actual date
       "date | xargs -I {} echo 'Provisioning completed at: {}'",
