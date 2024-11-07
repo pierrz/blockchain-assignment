@@ -201,12 +201,11 @@ resource "null_resource" "setup_services" {
       "sudo rm -f /etc/nginx/sites-enabled/default",
       "sudo nginx -t",
 
-      # DISABLED certificate step (DNSSEC issue)
       # Setup SSL with Certbot
-      # "echo 'Configuring SSL ...'",
-      # "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
-      # "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
-      # "sudo nginx -t",
+      "echo 'Configuring SSL ...'",
+      "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
+      "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
+      "sudo nginx -t",
 
       # Create .env
       "echo 'Creating .env file ...'",
@@ -226,7 +225,6 @@ resource "null_resource" "setup_services" {
       "[Unit]",
       "Description=Blockchain Application",
       "After=network.target clickhouse-server.service",
-
       "[Service]",
       "Type=simple",
       "User=${var.scaleway_server_user}",
@@ -234,7 +232,6 @@ resource "null_resource" "setup_services" {
       "ExecStart=/usr/bin/npm start",
       "Restart=always",
       "RestartSec=10",
-
       "[Install]",
       "WantedBy=multi-user.target",
       "EOF",
@@ -251,9 +248,9 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable blockchain-app",
       "sudo systemctl start blockchain-app",
 
-      # # Save Terraform scripts (avoiding permission errors)
-      # "mkdir -p /opt/app/tmp",
-      # "find /tmp -maxdepth 1 -name 'terraform_*.sh' -type f 2>/dev/null | xargs -I {} cp {} /opt/app/tmp/ || true",
+      # Save Terraform scripts (avoiding permission errors)
+      "mkdir -p /opt/app/tmp",
+      "find /tmp -maxdepth 1 -name 'terraform_*.sh' -type f 2>/dev/null | xargs -I {} cp {} /opt/app/tmp/ || true",
 
       # Print completion with actual date
       "date | xargs -I {} echo 'Provisioning completed at: {}'",

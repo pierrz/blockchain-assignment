@@ -73,7 +73,7 @@ curl -s "http://localhost:3000/transactions/by-value?address=0x9702230A8Ea53601f
 ```
 - Transactions count: 
 ```
-curl -s "http://localhost:3000/transactions/count?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&
+curl -s "http://localhost:3000/transactions/count?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7
 ```
 
 <br>
