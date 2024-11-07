@@ -159,13 +159,16 @@ resource "null_resource" "setup_services" {
       "CLONE_URI='https://${var.github_token}@github.com/${var.github_repo_name}.git'",
       "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch'",
       "git clone $CLONE_FLAGS $CLONE_URI /opt/app",
-      "npm install --no-package-lock --no-save /opt/app/src",
       # TBD: dist directory and symlink config
-      "mkdir -p /opt/app/dist && cd /opt/app/dist",
-      "npm install",
-      "ln -sf /opt/app/config /opt/app/dist/",
-      "ln -sf /opt/app/src/package.json /opt/app/dist/package.json",
-      "ln -sf /opt/app/src/package-lock.json /opt/app/dist/package-lock.json",
+      # "mkdir -p /opt/app/dist && cd /opt/app/dist",
+      # "cd /opt/app/dist",
+      # "cd /opt/app",
+      "npm install --no-package-lock --no-save /opt/app",
+      # "npm install --no-package-lock --no-save /opt/app/src",
+      # "npm install",
+      # "ln -sf /opt/app/config /opt/app/dist/",
+      # "ln -sf /opt/app/src/package.json /opt/app/package.json",
+      # "ln -sf /opt/app/src/package-lock.json /opt/app/package-lock.json",
 
       # Install ClickHouse
       "echo 'Installing ClickHouse ...'",
@@ -227,10 +230,8 @@ resource "null_resource" "setup_services" {
       "CLICKHOUSE_DB=${var.clickhouse_db}",
       "CLICKHOUSE_USER=${var.clickhouse_app_user}",
       "CLICKHOUSE_PASSWORD=${var.clickhouse_app_password}",
-      # "CLICKHOUSE_USER=${var.clickhouse_user}",
-      # "CLICKHOUSE_PASSWORD=${var.clickhouse_password}",
       "AVALANCHE_RPC_URL=${var.avalanche_rpc_url}",
-      # NODE_ENV=production",
+      "NODE_ENV=production",
       "EOF",
 
       # Create service for Typescript components
@@ -244,7 +245,7 @@ resource "null_resource" "setup_services" {
       "Type=simple",
       "User=${var.scaleway_server_user}",
       "WorkingDirectory=/opt/app",
-      "Environment=NODE_ENV=production",
+      # "Environment=NODE_ENV=production",
       "ExecStart=/usr/bin/npm start",
       "Restart=always",
       "RestartSec=10",
@@ -264,12 +265,11 @@ resource "null_resource" "setup_services" {
       "sudo systemctl enable nginx",
       "sudo systemctl enable blockchain-app",
       "sudo systemctl start blockchain-app",
+      "echo 'Provisioning completed at: $(date)'",
 
+      # Keep Terraform scripts for debugging purpose
       "mkdir -p /opt/app/tmp",
       "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app{} \\;",
-
-      # "find /tmp -name 'terraform_*.sh' -exec cp {} /opt/app/terraform_script_part2.sh \\;",
-      # "echo 'Provisioning completed at: $(date)'"
     ]
   }
 }

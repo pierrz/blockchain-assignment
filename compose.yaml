@@ -2,8 +2,8 @@ name: bctk
 
 x-bctk-common-env: &bctk-common-env
   CLICKHOUSE_DB: "${CLICKHOUSE_DB}"
-  CLICKHOUSE_USER: "${CLICKHOUSE_USER}"
-  CLICKHOUSE_PASSWORD: "${CLICKHOUSE_PASSWORD}"
+  CLICKHOUSE_APP_USER: "${CLICKHOUSE_APP_USER}"
+  CLICKHOUSE_APP_PASSWORD: "${CLICKHOUSE_APP_PASSWORD}"
   CLICKHOUSE_URL: "http://${CLICKHOUSE_IP}:${CLICKHOUSE_PORT}"
 
 x-bctk-clickhouse-env: &bctk-clickhouse-env
@@ -14,7 +14,8 @@ x-bctk-app-env: &bctk-app-env
   environment:
     <<: *bctk-common-env
     AVALANCHE_RPC_URL: "${AVALANCHE_RPC_URL}"
-  
+    # NODE_ENV: production
+    NODE_ENV: development
 
 volumes:
   bctk-vclickhouse:
@@ -39,20 +40,24 @@ services:
     volumes:
       - bctk-vclickhouse:/var/lib/clickhouse
       - ./db/startup_scripts.xml:/etc/clickhouse-server/config.d/startup_scripts.xml:ro
+      - ./db/users.xml:/etc/clickhouse-server/users.d/users.xml:ro
     networks:
       bctk-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.101
   
   application:
     container_name: bctk_app
-    build: src
+    build: 
+      context: .
+      dockerfile: src/Dockerfile
     restart: always
     depends_on:
       - clickhouse
     <<: *bctk-app-env
     volumes:
       - ${DATA_DIR}:/srv/data
-      - ./config:/dist/config
+      - ./config:/config
+      - ./src:/src    # useful to enable respawn in dev mode
     ports:
       - "3000:3000"
     networks:

@@ -7,13 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "start:api": "node dist/index.js",
-    "start:import": "node dist/index.js",
-    "start:realtime": "node dist/index.js",
-    "dev": "ts-node-dev --respawn index.ts",
-    "dev:api": "ts-node-dev --respawn index.ts",
-    "dev:import": "ts-node-dev --respawn index.js",
-    "dev:realtime": "ts-node-dev --respawn index.ts"
+    "dev": "ts-node-dev --respawn src/index.ts"
   },
   "dependencies": {
     "@clickhouse/client": "^1.7.0",
