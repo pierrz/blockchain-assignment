@@ -19,7 +19,7 @@ data "scaleway_account_ssh_key" "cd_key" {
 }
 
 locals {
-  clickhouse_version = "24.10.1"
+  # clickhouse_version = "24.10.1.2812"
   database_name      = var.clickhouse_db
   table_name         = "transactions"
   data_directory     = "/var/lib/clickhouse"
@@ -114,11 +114,11 @@ resource "null_resource" "setup_services" {
   provisioner "remote-exec" {
     inline = [
 
-      # Install AWS CLI
-      "echo 'Installing AWS CLI ...'",
-      "curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'",
-      "unzip awscliv2.zip",
-      "sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update",
+      # # Install AWS CLI
+      # "echo 'Installing AWS CLI ...'",
+      # "curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'",
+      # "unzip awscliv2.zip",
+      # "sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update",
 
       # Setup AWS credentials 
       "echo 'Setting up AWS credentials...'",
@@ -184,7 +184,8 @@ resource "null_resource" "setup_services" {
       "sed -i 's/password2/${var.clickhouse_app_password}/g' $USERS_CONFIG",
       "sudo mkdir -p /etc/clickhouse-server/users.d",
       "sudo ln -s /opt/app/db/users.xml /etc/clickhouse-server/users.d/users.xml",
-      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version}",
+      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server clickhouse-client",
+      # "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version}",
 
       # # Configure ClickHouse
       # "sudo mkdir -p ${local.data_directory}",

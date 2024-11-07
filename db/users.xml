@@ -1,5 +1,5 @@
 <!-- /etc/clickhouse-server/users.d/users.xml -->
-<yandex>
+<clickhouse>
     <users>
         <user1>
             <password>password1</password>
@@ -18,4 +18,4 @@
             <quota>default</quota>
         </user2>
     </users>
-</yandex>
+</clickhouse>
