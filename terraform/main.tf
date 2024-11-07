@@ -215,11 +215,12 @@ resource "null_resource" "setup_services" {
       "sudo rm -f /etc/nginx/sites-enabled/default",
       "sudo nginx -t",
 
+      # DISABLED certificate step (DNSSEC issue)
       # Setup SSL with Certbot
-      "echo 'Configuring SSL ...'",
-      "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
-      "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
-      "sudo nginx -t",
+      # "echo 'Configuring SSL ...'",
+      # "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
+      # "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
+      # "sudo nginx -t",
 
       # Create .env
       "echo 'Creating .env file ...'",
@@ -227,8 +228,10 @@ resource "null_resource" "setup_services" {
       "CLICKHOUSE_IP=${var.clickhouse_ip}",
       "CLICKHOUSE_PORT=${var.clickhouse_port}",
       "CLICKHOUSE_DB=${var.clickhouse_db}",
-      "CLICKHOUSE_USER=${var.clickhouse_user}",
-      "CLICKHOUSE_PASSWORD=${var.clickhouse_password}",
+      "CLICKHOUSE_USER=${var.clickhouse_app_user}",
+      "CLICKHOUSE_PASSWORD=${var.clickhouse_app_password}",
+      # "CLICKHOUSE_USER=${var.clickhouse_user}",
+      # "CLICKHOUSE_PASSWORD=${var.clickhouse_password}",
       "AVALANCHE_RPC_URL=${var.avalanche_rpc_url}",
       # "echo 'NODE_ENV=production' >> .env",
       "EOF",
