@@ -145,6 +145,13 @@ resource "null_resource" "setup_services" {
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
       "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')",
 
+      # Install Node.js from NodeSource
+      "echo 'Installing Node.js ...'",
+      "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
+      "sudo apt-get install -y nodejs",
+      "node --version",
+      "npm --version",
+
       # Clone and setup application
       "echo 'Clone and setup application ...'",
       "sudo mkdir -p /opt/app",
@@ -153,17 +160,12 @@ resource "null_resource" "setup_services" {
       "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch'",
       "git clone $CLONE_FLAGS $CLONE_URI /opt/app",
       "npm install --no-package-lock --no-save /opt/app/src",
-      "mkdir -p /opt/app/dist/config",
-      "ln -sf /opt/app/config/production.json /opt/app/dist/config/production.json",
-      "ln -sf /opt/app/package.json /opt/app/dist/package.json",
-      "ln -sf /opt/app/package-lock.json /opt/app/dist/package-lock.json",
-
-      # Install Node.js from NodeSource
-      "echo 'Installing Node.js ...'",
-      "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
-      "sudo apt-get install -y nodejs",
-      "node --version",
-      "npm --version",
+      # TBD: dist directory and symlink config
+      "mkdir -p /opt/app/dist && cd /opt/app/dist",
+      "npm install",
+      "ln -sf /opt/app/config /opt/app/dist/",
+      "ln -sf /opt/app/src/package.json /opt/app/dist/package.json",
+      "ln -sf /opt/app/src/package-lock.json /opt/app/dist/package-lock.json",
 
       # Install ClickHouse
       "echo 'Installing ClickHouse ...'",
@@ -228,7 +230,7 @@ resource "null_resource" "setup_services" {
       # "CLICKHOUSE_USER=${var.clickhouse_user}",
       # "CLICKHOUSE_PASSWORD=${var.clickhouse_password}",
       "AVALANCHE_RPC_URL=${var.avalanche_rpc_url}",
-      # "echo 'NODE_ENV=production' >> .env",
+      # NODE_ENV=production",
       "EOF",
 
       # Create service for Typescript components
