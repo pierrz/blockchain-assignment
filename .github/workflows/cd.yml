@@ -83,6 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
+      url: https://bctk.fullofstack.eu
     env:
       TF_LOG: DEBUG
 

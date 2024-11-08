@@ -104,7 +104,9 @@ curl -s "http://localhost:3000/transactions/count?address=0x9702230A8Ea53601f5cD
 <br>
 
 ### Linting
+
 Until linting is automatically done via `precommit`, you should run the command:
+
 ```
 npx eslint . --fix
 npx prettier --write .
