@@ -3,10 +3,10 @@
 # Configure system limits for ClickHouse
 echo 'Configuring system limits for ClickHouse...'
 sudo tee /etc/security/limits.d/clickhouse.conf << EOF
-clickhouse soft nofile 262144
-clickhouse hard nofile 262144
-clickhouse soft nproc 131072
-clickhouse hard nproc 131072
+    clickhouse soft nofile 262144
+    clickhouse hard nofile 262144
+    clickhouse soft nproc 131072
+    clickhouse hard nproc 131072
 EOF
 
 # Configure transparent hugepages
