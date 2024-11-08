@@ -1,3 +1,4 @@
+<!-- /etc/clickhouse-server/config.d/startup_scripts.xml -->
 <clickhouse>
     <startup_scripts>
         <scripts>

@@ -3,30 +3,22 @@ import { avalanche } from "viem/chains";
 import { clickhouse } from "../dbClient/clickhouseClient.js";
 import {
   transactionTableName,
-  TransactionType,
   transactionTypeReference,
 } from "../models/transactions.js";
 import { monitorEvents } from "./utils.js";
-
 export async function realtimeMonitoring() {
   // Initialize Viem client for Avalanche C-Chain
   const client = createPublicClient({
     chain: avalanche,
     transport: http(),
   });
-
-  async function processTransactions(
-    hash: `0x${string}`,
-    blockTimestamp: number,
-  ): Promise<TransactionType | null> {
+  async function processTransactions(hash, blockTimestamp) {
     try {
       const [tx, receipt] = await Promise.all([
         client.getTransaction({ hash }),
         client.getTransactionReceipt({ hash }),
       ]);
-
       if (!tx || !receipt) return null;
-
       return {
         timestamp: new Date(blockTimestamp * 1000)
           .toISOString()
@@ -46,23 +38,19 @@ export async function realtimeMonitoring() {
       return null;
     }
   }
-
-  async function insertTransactions(transactions: TransactionType[]) {
+  async function insertTransactions(transactions) {
     if (transactions.length === 0) return;
-
     try {
       await clickhouse.insert({
         table: `blockchain.${transactionTableName}`,
         values: transactions,
         format: "JSONEachRow",
       });
-
       console.log(`Inserted ${transactions.length} transactions`);
     } catch (error) {
       console.error("Error inserting transactions:", error);
     }
   }
-
   // Start monitoring with the type reference object
   monitorEvents(
     client,
