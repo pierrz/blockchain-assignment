@@ -236,21 +236,56 @@ resource "null_resource" "setup_services" {
       "WantedBy=multi-user.target",
       "EOF",
 
-      # Reload systemd, enable and start the service
-      "sh terraform/init-services.sh",
-
       # Save Terraform scripts (avoiding permission errors)
       "mkdir -p /opt/app/tmp",
       "find /tmp -maxdepth 1 -name 'terraform_*.sh' -type f 2>/dev/null | xargs -I {} cp {} /opt/app/tmp/ || true",
 
-      # Print completion with actual date
-      "date | xargs -I {} echo 'Provisioning completed at: {}'",
     ]
   }
 
   provisioner "remote-exec" {
     inline = [
-      "sh /terraform/init-services.sh"
+      # Reload systemd, enable and start the service
+      "sh /terraform/init-services.sh",
+      # # Configure system limits for ClickHouse
+      # "echo 'Configuring system limits for ClickHouse...'",
+      # "sudo tee /etc/security/limits.d/clickhouse.conf << EOF",
+      # "clickhouse soft nofile 262144",
+      # "clickhouse hard nofile 262144",
+      # "clickhouse soft nproc 131072",
+      # "clickhouse hard nproc 131072",
+      # "EOF",
+
+      # # Configure transparent hugepages
+      # "echo 'Configuring transparent hugepages...'",
+      # "echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled",
+
+      # # Configure numa zones if available
+      # "if [ -f /proc/sys/vm/zone_reclaim_mode ]; then",
+      #     "echo 0 | sudo tee /proc/sys/vm/zone_reclaim_mode",
+      # "fi",
+
+      # # Reload systemd, enable and start the service
+      # "echo 'Starting services ...'",
+      # "sudo systemctl daemon-reload",
+      # "sudo systemctl start clickhouse-server",
+      # "sudo systemctl enable clickhouse-server",
+      # "sudo systemctl start clickhouse-keeper",
+      # "sudo systemctl enable clickhouse-keeper",
+      # "sudo systemctl restart nginx",
+      # "sudo systemctl enable nginx",
+      # "sudo systemctl enable blockchain-app",
+      # "sudo systemctl start blockchain-app",
+
+      # # Double checks
+      # "systemctl is-active --quiet clickhouse-server || systemctl restart clickhouse-server;",
+      # "systemctl is-active --quiet clickhouse-keeper || systemctl restart clickhouse-keeper;",
+      # "systemctl is-active --quiet blockchain-app || systemctl restart blockchain-app;",
+      # "systemctl is-active --quiet nginx || systemctl restart nginx;",
+
+      # Print completion with actual date
+      "find /tmp -maxdepth 1 -name 'terraform_*.sh' -type f 2>/dev/null | xargs -I {} cp {} /opt/app/tmp/ || true",
+      "date | xargs -I {} echo 'Provisioning completed at: {}'",
     ]
   }
 }
