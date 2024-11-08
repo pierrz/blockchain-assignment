@@ -237,12 +237,14 @@ resource "null_resource" "setup_services" {
       "EOF",
 
       # Reload systemd, enable and start the service
-      "sh /terraform/init-services.sh",
+      "sh /opt/app/terraform/init-services.sh",
 
-      # Save Terraform scripts (avoiding permission errors)
-      "mkdir -p /opt/app/tmp",
-      "find /tmp -maxdepth 1 -name 'terraform_*.sh' -type f 2>/dev/null | xargs -I {} cp {} /opt/app/tmp/ || true",
+      # Save Terraform scripts (avoiding permission errors) for debug purposes
+      # "mkdir -p /opt/app/tmp",
+      # "find /tmp -maxdepth 1 -name 'terraform_*.sh' -type f 2>/dev/null | xargs -I {} cp {} /opt/app/tmp/ || true",
 
+      # Success message
+      "date | xargs -I {} echo 'Provisioning completed at: {}'",
     ]
   }
 

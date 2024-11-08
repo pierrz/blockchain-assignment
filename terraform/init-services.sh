@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+##############################
+# Clickhouse specific settings
+#  -> to solve the 'get_mempolicy: Operation not permitted' warning (Cf. Docker compose setup)
+
 # Configure system limits for ClickHouse
 echo 'Configuring system limits for ClickHouse...'
 sudo tee /etc/security/limits.d/clickhouse.conf << EOF
@@ -18,6 +23,10 @@ if [ -f /proc/sys/vm/zone_reclaim_mode ]; then
     echo 0 | sudo tee /proc/sys/vm/zone_reclaim_mode
 fi
 
+
+##########
+# SERVICES
+
 # Reload systemd, enable and start the service
 echo 'Starting services ...'
 sudo systemctl daemon-reload
@@ -31,7 +40,7 @@ sudo systemctl enable blockchain-app
 sudo systemctl start blockchain-app
 
 # Double checks
-systemctl is-active --quiet clickhouse-server || systemctl restart clickhouse-server;
-systemctl is-active --quiet clickhouse-keeper || systemctl restart clickhouse-keeper;
-systemctl is-active --quiet blockchain-app || systemctl restart blockchain-app;
-systemctl is-active --quiet nginx || systemctl restart nginx;
+sudo systemctl is-active --quiet clickhouse-server || sudo systemctl restart clickhouse-server;
+sudo systemctl is-active --quiet clickhouse-keeper || sudo systemctl restart clickhouse-keeper;
+sudo systemctl is-active --quiet blockchain-app || sudo systemctl restart blockchain-app;
+sudo systemctl is-active --quiet nginx || sudo systemctl restart nginx;
