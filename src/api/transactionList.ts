@@ -1,4 +1,4 @@
-// Transaction List endpoint: 
+// Transaction List endpoint:
 //  -> Return all transactions (appropriately paginated) made or received from a given address,
 //  sorted by blockNumber and transactionIndex.
 
@@ -11,17 +11,19 @@
  * @returns List of transactions sorted by blockNumber and transactionIndex (default) or by value,
  *  with additional meta such as address, page number, total_value, page_total_value and elapsed_time_in_seconds
  */
-import { clickhouse } from '../dbClient/clickhouseClient.js';
-import { ClickhouseListResponse, ClickhouseTotalResponse, TransactionPaginatedResult } from './responses.js';
-
+import { clickhouse } from "../dbClient/clickhouseClient.js";
+import {
+  ClickhouseListResponse,
+  ClickhouseTotalResponse,
+  TransactionPaginatedResult,
+} from "./responses.js";
 
 export async function getTransactions(
   address: string,
   page: number = 1,
   limit: number = 10,
-  byValue: boolean = false
+  byValue: boolean = false,
 ): Promise<TransactionPaginatedResult> {
-  
   const offset = (page - 1) * limit;
 
   if (!address) {
@@ -29,57 +31,55 @@ export async function getTransactions(
   }
 
   try {
-
     // total queries
     const totalValueQuery = `
         SELECT sum(value) as total_value
         FROM blockchain.transactions
         WHERE from_address = '${address}' OR to_address = '${address}'
     `;
-    let totalValueByPageQuery = totalValueQuery
+    let totalValueByPageQuery = totalValueQuery;
 
     // queries sorting by values or not
     let listQuery = `
         SELECT *
         FROM blockchain.transactions
         WHERE from_address = '${address}' OR to_address = '${address}'
-      `
+      `;
     if (byValue) {
-      listQuery = `${listQuery} ORDER BY value DESC`
-    }
-    else {
-      listQuery = `${listQuery} ORDER BY block_number, tx_index`
+      listQuery = `${listQuery} ORDER BY value DESC`;
+    } else {
+      listQuery = `${listQuery} ORDER BY block_number, tx_index`;
     }
 
     // final queries
-    const queryTail = "LIMIT {limit:UInt32} OFFSET {offset:UInt32}"
-    listQuery = `${listQuery} ${queryTail}`
-    totalValueByPageQuery = `${totalValueByPageQuery} ${queryTail}`
-    
+    const queryTail = "LIMIT {limit:UInt32} OFFSET {offset:UInt32}";
+    listQuery = `${listQuery} ${queryTail}`;
+    totalValueByPageQuery = `${totalValueByPageQuery} ${queryTail}`;
+
     // Get data from DB
     const resultSet = await clickhouse.query({
-            query: listQuery,
-            query_params: {
-              limit: limit,
-              offset: offset
-            }
-          }),
-          totalSet = await clickhouse.query({query: totalValueQuery}),
-          totalByPageSet = await clickhouse.query({
-            query: totalValueByPageQuery,
-            query_params: {
-              limit: limit,
-              offset: offset
-            }
-          });
-    
+        query: listQuery,
+        query_params: {
+          limit: limit,
+          offset: offset,
+        },
+      }),
+      totalSet = await clickhouse.query({ query: totalValueQuery }),
+      totalByPageSet = await clickhouse.query({
+        query: totalValueByPageQuery,
+        query_params: {
+          limit: limit,
+          offset: offset,
+        },
+      });
+
     // Data preps
     const result = await resultSet.json<ClickhouseListResponse>(),
-          elapsedTime = parseFloat((result.statistics?.elapsed ?? 0).toFixed(6)),
-          totalJson = await totalSet.json<ClickhouseTotalResponse>(),
-          totalByPageJson = await totalByPageSet.json<ClickhouseTotalResponse>(),
-          totalData: any = totalJson.data[0],
-          totalByPageData: any = totalByPageJson.data[0];
+      elapsedTime = parseFloat((result.statistics?.elapsed ?? 0).toFixed(6)),
+      totalJson = await totalSet.json<ClickhouseTotalResponse>(),
+      totalByPageJson = await totalByPageSet.json<ClickhouseTotalResponse>(),
+      totalData: any = totalJson.data[0],
+      totalByPageData: any = totalByPageJson.data[0];
 
     return {
       address,
@@ -87,15 +87,14 @@ export async function getTransactions(
       total_value: totalData?.total_value ?? 0,
       page_total_value: totalByPageData?.total_value ?? 0,
       elapsed_time_in_seconds: elapsedTime,
-      data: <any>result.data
+      data: <any>result.data,
     };
-
-  }  catch (error) {
-      console.error("Error counting transactions:", error);
-      if (error instanceof Error) {
-        throw new Error(`Failed to retrieve transaction list: ${error.message}`);
-      } else {
-        throw new Error("Failed to retrieve transaction list: Unknown error");
-      }
+  } catch (error) {
+    console.error("Error counting transactions:", error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to retrieve transaction list: ${error.message}`);
+    } else {
+      throw new Error("Failed to retrieve transaction list: Unknown error");
     }
+  }
 }

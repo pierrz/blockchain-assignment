@@ -20,7 +20,7 @@ x-bctk-app-env: &bctk-app-env
 volumes:
   bctk-vclickhouse:
     name: bctk_vclickhouse
-  
+
 networks:
   bctk-network:
     name: bctk_network
@@ -31,7 +31,6 @@ networks:
         - subnet: ${DOCKER_SUBNET_BASE}.0/16
 
 services:
-
   clickhouse:
     container_name: bctk_clickhouse
     image: clickhouse/clickhouse-server:24.10.1
@@ -44,10 +43,10 @@ services:
     networks:
       bctk-network:
         ipv4_address: ${DOCKER_SUBNET_BASE}.101
-  
+
   application:
     container_name: bctk_app
-    build: 
+    build:
       context: .
       dockerfile: src/Dockerfile
     restart: always
@@ -57,7 +56,7 @@ services:
     volumes:
       - ${DATA_DIR}:/srv/data
       - ./config:/config:ro
-      - ./src:/src    # useful to enable respawn in dev mode (WIP)
+      - ./src:/src # useful to enable respawn in dev mode (WIP)
     ports:
       - "3000:3000"
     networks:

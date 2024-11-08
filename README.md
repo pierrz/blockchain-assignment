@@ -1,9 +1,11 @@
 # blockchain-assignment
 
 #### Description
+
 Repository used for the Blockchain technical assignment.
 
 #### Table of Contents
+
 - [Overview](#overview)
 - [Schema](#schema)
 - [Installation](#installation)
@@ -20,13 +22,14 @@ Cf. [`db/startup_scripts.xml`](db/startup_scripts.xml)
 
 - Optimized schema for the `blockchain.transactions` table
 - Real-time analytics via materialized views
-    - tx_analytics - Daily statistics
-    - address_activity - Per-address metrics
+  - tx_analytics - Daily statistics
+  - address_activity - Per-address metrics
 - Configurable performance settings
 
 <br>
 
 ### Installation
+
 - Create the `.env` based on the provided [`.env.example`](.env.example)
 - Tweak the `src/config/*.json`(src/config) files to decide which Typescript components will be running (import, realtime, APIs).
 - If using the "import" mode, you have to put your source `.tar.gz` data in `$DATA_DIR` (Cf. `.env`)
@@ -36,6 +39,7 @@ Cf. [`db/startup_scripts.xml`](db/startup_scripts.xml)
 ### Quick Start
 
 Run the Docker Compose command:
+
 ```
 docker compose up --build
 ```
@@ -45,6 +49,7 @@ docker compose up --build
 ### Dist build
 
 Use Docker to build the Typescript app and retrieve it locally:
+
 ```
 docker build . --file=src/Dockerfile --tag bctk_app:latest --build-arg BUILD_ONLY="True"
 CONTAINERID=$(docker run -d bctk_app:latest)
@@ -56,41 +61,59 @@ docker stop $CONTAINERID
 
 ### Deployment with GitHub Actions and Terraform
 
-For this step, there are many secrets created in GitHub Actions 
-to support the CD workflow and the Terraform provisionning. 
+For this step, there are many secrets created in GitHub Actions
+to support the CD workflow and the Terraform provisionning.
 Follow what is available in the `.env` and `.github/workflows/cd.yml` files to gather what is required.
 
 The Terraform setup work:
+
 - fetch the sample data from a Scaleway bucket
 - install this repository and all the Node environment
 - install a ClickHouse database
 - install NGinx with the required configurations
-- implement a Letsencrypt certificate with Certbot 
+- implement a Letsencrypt certificate with Certbot
 
-NB: The last point is currently disabled 
+NB: The last point is currently disabled
 as a DNSSEC issue related to the created IPs or DNS records
 is still in the way (Scaleway support WIP).
 
 <br>
 
 ### APIs
+
 When using Docker, you can access the APIs via the following queries:
-- Transactions list: 
+
+- Transactions list:
+
 ```
 curl -s "http://localhost:3000/transactions?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&page=2&limit=5" | jq '.'
 ```
-- Transactions list, sorted by values: 
+
+- Transactions list, sorted by values:
+
 ```
 curl -s "http://localhost:3000/transactions/by-value?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&page=2&limit=5" | jq '.'
 ```
-- Transactions count: 
+
+- Transactions count:
+
 ```
 curl -s "http://localhost:3000/transactions/count?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7
 ```
 
 <br>
 
+### Linting
+Until linting is automatically done via `precommit`, you should run the command:
+```
+npx eslint . --fix
+npx prettier --write .
+```
+
+<br>
+
 ### Technical Debt
+
 - Implement complete authentication for ClicHouse in Compose setup (Terraform OK)
 - Multithreading and improved error handling for the Realtime mode.
 - Tests for the Typescript components
