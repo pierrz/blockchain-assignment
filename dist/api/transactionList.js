@@ -40,7 +40,7 @@ export async function getTransactions(address, page = 1, limit = 10, byValue = f
         return {
             address,
             page: page,
-            elapsed_time: elapsedTime,
+            elapsed_time_in_seconds: elapsedTime,
             data: result.data
         };
     }

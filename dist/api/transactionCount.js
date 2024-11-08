@@ -26,16 +26,16 @@ export async function getTransactionCount(address) {
         if (!result?.data?.[0]) {
             return {
                 address,
-                transactionCount: 0,
-                elapsed_time: 0
+                transaction_count: 0,
+                elapsed_time_in_seconds: 0
             };
         }
         // Get all values from the first row using Object.values()
         const values = Object.values(result.data[0]), count = parseInt(values[0], 10), elapsedTime = parseFloat((result.statistics?.elapsed ?? 0).toFixed(6));
         return {
             address,
-            transactionCount: isNaN(count) ? 0 : count,
-            elapsed_time: elapsedTime
+            transaction_count: isNaN(count) ? 0 : count,
+            elapsed_time_in_seconds: elapsedTime
         };
     }
     catch (error) {

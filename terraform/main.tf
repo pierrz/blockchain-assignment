@@ -237,16 +237,7 @@ resource "null_resource" "setup_services" {
       "EOF",
 
       # Reload systemd, enable and start the service
-      "echo 'Starting services ...'",
-      "sudo systemctl daemon-reload",
-      "sudo systemctl start clickhouse-server",
-      "sudo systemctl enable clickhouse-server",
-      "sudo systemctl start clickhouse-keeper",
-      "sudo systemctl enable clickhouse-keeper",
-      "sudo systemctl restart nginx",
-      "sudo systemctl enable nginx",
-      "sudo systemctl enable blockchain-app",
-      "sudo systemctl start blockchain-app",
+      "sh terraform/init-services.sh",
 
       # Save Terraform scripts (avoiding permission errors)
       "mkdir -p /opt/app/tmp",
@@ -254,6 +245,12 @@ resource "null_resource" "setup_services" {
 
       # Print completion with actual date
       "date | xargs -I {} echo 'Provisioning completed at: {}'",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sh /terraform/init-services.sh"
     ]
   }
 }

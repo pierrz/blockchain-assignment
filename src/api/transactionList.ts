@@ -57,7 +57,7 @@ export async function getTransactions(
     return {
       address,
       page: page,
-      elapsed_time: elapsedTime,
+      elapsed_time_in_seconds: elapsedTime,
       data: result.data
     };
 

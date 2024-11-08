@@ -27,7 +27,14 @@ export async function getTransactionsSortedByValue(address, page = 1, limit = 10
                 offset: offset
             }
         });
-        return await resultSet.json();
+        // return await resultSet.json();
+        const result = await resultSet.json(), elapsedTime = parseFloat((result.statistics?.elapsed ?? 0).toFixed(6));
+        return {
+            address,
+            page: page,
+            elapsed_time_in_seconds: elapsedTime,
+            data: result.data
+        };
     }
     catch (error) {
         console.error("Error querying transactions by value:", error);

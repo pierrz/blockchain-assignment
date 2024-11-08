@@ -12,7 +12,11 @@ import { ClickhouseResponse, TransactionPaginatedResult } from './responses.js';
  * @param limit The number of transactions per page.
  * @returns List of transactions sorted by value.
  */
-export async function getTransactionsSortedByValue(address: string, page: number = 1, limit: number = 10) {
+export async function getTransactionsSortedByValue(
+  address: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<TransactionPaginatedResult> {
   const offset = (page - 1) * limit;
 
   try {
@@ -32,7 +36,15 @@ export async function getTransactionsSortedByValue(address: string, page: number
       }
     });
 
-    return await resultSet.json();
+    // return await resultSet.json();
+    const result = await resultSet.json<ClickhouseResponse>(),
+          elapsedTime = parseFloat((result.statistics?.elapsed ?? 0).toFixed(6));
+    return {
+      address,
+      page: page,
+      elapsed_time_in_seconds: elapsedTime,
+      data: result.data
+    };
   } catch (error) {
     console.error("Error querying transactions by value:", error);
       if (error instanceof Error) {

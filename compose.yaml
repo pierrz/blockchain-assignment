@@ -57,7 +57,6 @@ services:
     volumes:
       - ${DATA_DIR}:/srv/data
       - ./config:/config:ro
-      - ./dist:/dist
       - ./src:/src    # useful to enable respawn in dev mode (WIP)
     ports:
       - "3000:3000"

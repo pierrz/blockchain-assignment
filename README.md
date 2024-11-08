@@ -42,6 +42,18 @@ docker compose up --build
 
 <br>
 
+### Dist build
+
+Use Docker to build the Typescript app and retrieve it locally:
+```
+docker build . --file=src/Dockerfile --tag bctk_app:latest --build-arg BUILD_ONLY="True"
+CONTAINERID=$(docker run -d bctk_app:latest)
+docker cp $CONTAINERID:/dist .
+docker stop $CONTAINERID
+```
+
+<br>
+
 ### Deployment with GitHub Actions and Terraform
 
 For this step, there are many secrets created in GitHub Actions 

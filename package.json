@@ -16,7 +16,8 @@
     "csv-parse": "^5.5.6",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "viem": "^2.21.39"
+    "viem": "^2.21.39",
+    "execa": "9.5.1"
   },
   "devDependencies": {
     "@types/config": "^3.3.5",

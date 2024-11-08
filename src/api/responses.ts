@@ -54,9 +54,14 @@ interface ClickhouseResponse {
 interface TransactionPaginatedResult {
     address: string;
     page: number;
-    elapsed_time: number;
+    elapsed_time_in_seconds: number;
     data: Array<Record<string, any>>;
     // data: Array<TransactionRecord>;
 }
 
-export {ClickhouseResponse, TransactionPaginatedResult}
+interface RestartStatus {
+    services: string;
+    status: string;
+  }
+
+export {ClickhouseResponse, TransactionPaginatedResult, RestartStatus}
