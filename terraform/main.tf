@@ -245,7 +245,7 @@ resource "null_resource" "setup_services" {
 
     ]
   }
-  
+
 }
 
 output "instance_ipv4" {
