@@ -259,7 +259,7 @@ output "instance_ipv6" {
 
 output "clickhouse_connection" {
   value = {
-    host      = scaleway_instance_ip.public_ipv6.address
+    host      = scaleway_instance_ip.public_ipv4.address
     http_port = 8123
     tcp_port  = 9000
     database  = local.database_name
