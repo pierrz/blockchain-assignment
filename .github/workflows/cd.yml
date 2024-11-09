@@ -139,7 +139,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
 
-      - name: Delete deprecated DNS records
+      - name: Delete deprecated Scaleway resources (DNS records & instance)
         run: |
 
           # Install Scaleway CLI
@@ -164,6 +164,10 @@ jobs:
           echo 'Deleting previous DNS records for '$SUB_DOMAIN' in '$ROOT_DOMAIN' ...'
           scw dns record delete $ROOT_DOMAIN name=$SUB_DOMAIN type=A
           scw dns record delete $ROOT_DOMAIN name=$SUB_DOMAIN type=AAAA
+
+          # Delete previous instance
+          INSTANCE_ID=$(scw instance server list project-id=${{ secrets.SCALEWAY_PROJECT_ID }})
+          scw instance server delete INSTANCE_ID with-volumes with-ip force-shutdown
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3.1.2
