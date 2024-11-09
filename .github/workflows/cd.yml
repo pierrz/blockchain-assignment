@@ -167,8 +167,12 @@ jobs:
 
           # Delete previous instance
           scw instance server list project-id=${{ secrets.SCALEWAY_PROJECT_ID }}
-          INSTANCE_ID=$(scw instance server list project-id=${{ secrets.SCALEWAY_PROJECT_ID }} | awk 'NR==2 {print $1}')
-          scw instance server delete $INSTANCE_ID with-volumes with-ip force-shutdown
+          INSTANCE_META=$(scw instance server list project-id=${{ secrets.SCALEWAY_PROJECT_ID }})
+          INSTANCE_ID=$($INSTANCE_META | awk 'NR==2 {print $1}')
+          INSTANCE_NAME=$($INSTANCE_META | awk 'NR==2 {print $2}')
+          echo 'Deleting instance '$INSTANCE_NAME' ...'
+          scw instance server stop $INSTANCE_ID
+          scw instance server delete $INSTANCE_ID with-volumes with-ip
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3.1.2
