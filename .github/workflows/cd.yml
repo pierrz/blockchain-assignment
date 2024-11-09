@@ -172,6 +172,7 @@ jobs:
           INSTANCE_NAME=$(echo "$INSTANCE_META" | awk 'NR==2 {print $2}')
           echo 'Deleting instance '$INSTANCE_NAME' ...'
           scw instance server stop $INSTANCE_ID
+          scw instance server wait $INSTANCE_ID
           scw instance server delete $INSTANCE_ID with-volumes with-ip
 
       - name: Set up Terraform
