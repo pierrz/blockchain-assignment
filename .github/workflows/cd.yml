@@ -166,8 +166,8 @@ jobs:
           scw dns record delete $ROOT_DOMAIN name=$SUB_DOMAIN type=AAAA
 
           # Delete previous instance
-          INSTANCE_ID=$(scw instance server list project-id=${{ secrets.SCALEWAY_PROJECT_ID }})
-          echo $INSTANCE_ID
+          scw instance server list project-id=${{ secrets.SCALEWAY_PROJECT_ID }}
+          INSTANCE_ID=$(scw instance server list project-id=${{ secrets.SCALEWAY_PROJECT_ID }} | awk 'NR==2 {print $1}')
           scw instance server delete $INSTANCE_ID with-volumes with-ip force-shutdown
 
       - name: Set up Terraform
