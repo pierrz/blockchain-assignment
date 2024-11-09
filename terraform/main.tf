@@ -141,9 +141,9 @@ resource "null_resource" "setup_services" {
 
       # Import data
       "echo 'Importing data from bucket ...'",
-      "sudo mkdir -p /srv/data/source /srv/data/processed /srv/data/failed", # creating all data directories
+      "sudo mkdir -p /srv/data/source /srv/data/processed /srv/data/failed /srv/logs", # creating all data directories
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
-      "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')",
+      "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')  >> /srv/logs/s3download.log 2>&1",
 
       # Install Node.js from NodeSource
       "echo 'Installing Node.js ...'",
