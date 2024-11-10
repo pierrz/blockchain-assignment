@@ -100,7 +100,6 @@ resource "scaleway_domain_record" "ipv6" {
   ttl      = 3600
 }
 
-# Install and configure services
 resource "null_resource" "setup_services" {
   depends_on = [scaleway_instance_server.main]
 
@@ -133,7 +132,7 @@ resource "null_resource" "setup_services" {
     ]
   }
 
-  # Configuration files
+  # Create all configuration files
   provisioner "remote-exec" {
     inline = [
       # AWS credentials
@@ -212,81 +211,21 @@ resource "null_resource" "setup_services" {
       "EOF",
       "sudo ln -sf /etc/nginx/sites-available/bctk.conf /etc/nginx/sites-enabled/bctk.conf",
       "sudo rm -f /etc/nginx/sites-enabled/default",
-      # "sudo nginx -t",
     ]
   }
 
   # System setup
   provisioner "remote-exec" {
     inline = [
-
-      # # Setup AWS credentials 
-      # "echo 'Setting up AWS credentials...'",
-      # "mkdir -p ~/.aws",
-
-      # "tee ~/.aws/credentials << EOF",
-      # "[default]",
-      # "aws_access_key_id = ${var.scaleway_access_key}",
-      # "aws_secret_access_key = ${var.scaleway_secret_key}",
-      # "EOF",
-
-      # "tee ~/.aws/config << EOF",
-      # "[default]",
-      # "region = ${local.region}",
-      # "output = json",
-      # "services = scw-${local.region}",
-      # "s3 =",
-      # "  max_concurrent_requests = 100",
-      # "  max_queue_size = 1000",
-      # "  multipart_threshold = 50 MB",
-      # "  multipart_chunksize = 10 MB",
-      # "[services scw-${local.region}]",
-      # "s3 =",
-      # "  endpoint_url = https://s3.${local.region}.scw.cloud",
-      # "EOF",
-
-      # # Import data
-      # "echo 'Importing data from bucket ...'",
-      # "sudo mkdir -p /srv/data/source /srv/data/processed /srv/data/failed /srv/logs", # creating all data directories
-      # "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
-      # "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/logs",
-      # "while [ ! -f /snap/bin/aws ]; do sleep 1; done",
-      # "/snap/bin/aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')  >> /srv/logs/s3download.log 2>&1",
-
-      # # Install Node.js from NodeSource
-      # "echo 'Installing Node.js ...'",
-      # "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -",
-      # "sudo apt-get install -y nodejs",
-      # "node --version",
-      # "npm --version",
-
-      # # Clone and setup application
-      # "echo 'Clone and setup application ...'",
-      # "sudo mkdir -p /opt/app",
-      # "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /opt/app",
-      # "CLONE_URI='https://${var.github_token}@github.com/${var.github_repo_name}.git'",
-      # "CLONE_FLAGS='--branch ${var.github_repo_branch} --single-branch'",
-      # "git clone $CLONE_FLAGS $CLONE_URI /opt/app",
-      # "cd /opt/app",
-      # "npm install --no-package-lock --no-save",
-
       # Install ClickHouse
       "echo 'Installing ClickHouse ...'",
       "curl -fsSL 'https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key' | sudo gpg --dearmor -o /usr/share/keyrings/clickhouse-keyring.gpg",
       "echo 'deb [signed-by=/usr/share/keyrings/clickhouse-keyring.gpg] https://packages.clickhouse.com/deb stable main' | sudo tee /etc/apt/sources.list.d/clickhouse.list",
       "sudo apt-get update",
-      # "USERS_CONFIG=/opt/app/db/users.xml",
-      # "sed -i 's/user1/${var.clickhouse_admin_user}/g' $USERS_CONFIG",
-      # "sed -i 's/password1/${var.clickhouse_admin_password}/g' $USERS_CONFIG",
-      # "sed -i 's/user2/${var.clickhouse_app_user}/g' $USERS_CONFIG",
-      # "sed -i 's/password2/${var.clickhouse_app_password}/g' $USERS_CONFIG",
-      # "sudo mkdir -p /etc/clickhouse-server/users.d /etc/clickhouse-server/config.d",
-      # "sudo ln -s /opt/app/db/users.xml /etc/clickhouse-server/users.d/users.xml",
-      # "sudo ln -s /opt/app/db/startup_scripts.xml /etc/clickhouse-server/config.d/startup_scripts.xml",
       "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server clickhouse-client",
       # "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clickhouse-server=${local.clickhouse_version} clickhouse-client=${local.clickhouse_version}",
 
-      # Setup UFW
+      # UFW setup
       "echo 'Configuring UFW ...'",
       "sudo ufw --force reset",
       "sudo ufw default deny incoming",
@@ -296,64 +235,12 @@ resource "null_resource" "setup_services" {
       "sudo ufw --force enable",
       "sudo systemctl enable ufw",
 
-      # # Setup Nginx
-      # "echo 'Setting up Nginx ...'",
-      # "NGINX_CONF_TEMPLATE=$(cat /opt/app/terraform/bctk.conf)",
-      # "sudo tee /etc/nginx/sites-available/bctk.conf << EOF",
-      # "server {",
-      # "server_name ${var.bctk_domain};",
-      # "$NGINX_CONF_TEMPLATE",
-      # "}",
-      # "EOF",
-      # "sudo ln -sf /etc/nginx/sites-available/bctk.conf /etc/nginx/sites-enabled/bctk.conf",
-      # "sudo rm -f /etc/nginx/sites-enabled/default",
-      # "sudo nginx -t",
-
       # DISABLED while finalising
       # # Setup SSL with Certbot
       # "echo 'Configuring SSL ...'",
       # "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
       # "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
       # "sudo nginx -t",
-
-      # # Create .env
-      # "echo 'Creating .env file ...'",
-      # "tee /opt/app/.env << EOF",
-      # "CLICKHOUSE_IP=${var.clickhouse_ip}",
-      # "CLICKHOUSE_PORT=${var.clickhouse_port}",
-      # "CLICKHOUSE_DB=${var.clickhouse_db}",
-      # "CLICKHOUSE_USER=${var.clickhouse_app_user}",
-      # "CLICKHOUSE_PASSWORD=${var.clickhouse_app_password}",
-      # "AVALANCHE_RPC_URL=${var.avalanche_rpc_url}",
-      # "NODE_ENV=production",
-      # "EOF",
-
-      # # Create service for Typescript components
-      # "echo 'Creating blockchain service...'",
-      # "sudo tee /etc/systemd/system/blockchain-app.service << EOF",
-      # "[Unit]",
-      # "Description=Blockchain Application",
-      # "After=network.target clickhouse-server.service",
-      # "[Service]",
-      # "Type=simple",
-      # "User=${var.scaleway_server_user}",
-      # "WorkingDirectory=/opt/app",
-      # "ExecStart=/usr/bin/npm start",
-      # "Restart=always",
-      # "RestartSec=10",
-      # "[Install]",
-      # "WantedBy=multi-user.target",
-      # "EOF",
-
-      # # Reload systemd, enable and start the service
-      # "sh /opt/app/terraform/init-services.sh",
-
-      # # Save Terraform scripts (avoiding permission errors) for debug purposes
-      # "mkdir -p /opt/app/tmp",
-      # "find /tmp -maxdepth 1 -name 'terraform_*.sh' -type f 2>/dev/null | xargs -I {} cp {} /opt/app/tmp/ || true",
-
-      # # Success message
-      # "date | xargs -I {} echo 'Provisioning completed at: {}'",
     ]
   }
 
@@ -377,7 +264,6 @@ resource "null_resource" "setup_services" {
 
       # Success message
       "date | xargs -I {} echo 'Provisioning completed at: {}'",
-
     ]
   }
 
