@@ -20,7 +20,6 @@ data "scaleway_account_ssh_key" "cd_key" {
 
 locals {
   # clickhouse_version = "24.10.1.2812"
-  # data_directory = "/var/lib/clickhouse"
   database_name = var.clickhouse_db
   table_name    = "transactions"
   domain_parts  = split(".", var.bctk_domain)
@@ -217,6 +216,11 @@ resource "null_resource" "setup_services" {
   # System setup
   provisioner "remote-exec" {
     inline = [
+
+      # Wait for Snap readiness
+      "echo 'Wait for snap packages to be installed ...'",
+      "while [ ! -f /snap/bin/aws ]; do sleep 1; done",
+
       # Install ClickHouse
       "echo 'Installing ClickHouse ...'",
       "curl -fsSL 'https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key' | sudo gpg --dearmor -o /usr/share/keyrings/clickhouse-keyring.gpg",
@@ -235,12 +239,11 @@ resource "null_resource" "setup_services" {
       "sudo ufw --force enable",
       "sudo systemctl enable ufw",
 
-      # DISABLED while finalising
-      # # Setup SSL with Certbot
-      # "echo 'Configuring SSL ...'",
-      # "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
-      # "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
-      # "sudo nginx -t",
+      # Setup SSL certificate with Certbot
+      "echo 'Configuring SSL ...'",
+      "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
+      "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
+      "sudo nginx -t",
     ]
   }
 
@@ -252,8 +255,7 @@ resource "null_resource" "setup_services" {
       "sudo mkdir -p /srv/data/source /srv/data/processed /srv/data/failed /srv/logs", # creating all data directories
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/logs",
-      "while [ ! -f /snap/bin/aws ]; do sleep 1; done",
-      "/snap/bin/aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')  >> /srv/logs/s3download.log 2>&1",
+      "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')  >> /srv/logs/s3download.log 2>&1",
 
       # Reload systemd, enable and start the service
       "sh /opt/app/terraform/init-services.sh",
