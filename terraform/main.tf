@@ -242,7 +242,8 @@ resource "null_resource" "setup_services" {
       # Setup SSL certificate with Certbot
       "echo 'Configuring SSL ...'",
       "sudo ln -sf /snap/bin/certbot /usr/bin/certbot",
-      "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain}",
+      "sudo certbot --nginx -d ${var.bctk_domain} --non-interactive --agree-tos --email ${local.sub_domain}@${local.root_domain} >> /srv/logs/certbot.log 2>&1",
+      "sudo rm -f /etc/nginx/sites-enabled/default", # just in case
       "sudo nginx -t",
     ]
   }
@@ -255,10 +256,10 @@ resource "null_resource" "setup_services" {
       "sudo mkdir -p /srv/data/source /srv/data/processed /srv/data/failed /srv/logs", # creating all data directories
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/data",
       "sudo chown -R ${var.scaleway_server_user}:${var.scaleway_server_user} /srv/logs",
-      "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}')  >> /srv/logs/s3download.log 2>&1",
+      "aws s3api get-object --bucket ${var.data_bucket} --key ${var.data_source} /srv/data/source/$(basename '${var.data_source}') >> /srv/logs/s3download.log 2>&1",
 
       # Reload systemd, enable and start the service
-      "sh /opt/app/terraform/init-services.sh",
+      "sh /opt/app/terraform/init-services.sh >> /srv/logs/init-services.log 2>&1",
 
       # Save Terraform scripts (avoiding permission errors) for debug purposes
       # "mkdir -p /opt/app/tmp",
