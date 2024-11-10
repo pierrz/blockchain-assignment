@@ -44,10 +44,6 @@ variable "scaleway_ssh_private_key" {
 }
 
 # DATA
-variable "scaleway_awscli_config" {
-  description = "AWS CLI configuration"
-  type        = string
-}
 variable "data_bucket" {
   description = "Scaleway bucket where the data is stored"
   type        = string
@@ -62,8 +58,8 @@ variable "bctk_domain" {
   description = "(Sub)Domain where to deploy the app and get a certificate for"
   type        = string
 }
-variable "github_token" {
-  description = "GitHub PAT token"
+variable "bctk_github_token" {
+  description = "GitHub PAT token dedicated to this repo"
   type        = string
 }
 variable "github_repo_name" {
@@ -92,15 +88,6 @@ variable "clickhouse_db" {
   description = "ClickHouse database name"
   type        = string
 }
-variable "clickhouse_user" {
-  description = "ClickHouse default user"
-  type        = string
-}
-variable "clickhouse_password" {
-  description = "ClickHouse default user password"
-  type        = string
-  sensitive   = true
-}
 variable "clickhouse_admin_user" {
   description = "ClickHouse default user"
   type        = string
@@ -118,42 +105,6 @@ variable "clickhouse_app_password" {
   description = "ClickHouse default user password"
   type        = string
   sensitive   = true
-}
-
-# variable "data_path" {
-#   description = "Path to the transactions CSV file"
-#   type        = string
-#   default     = "../data"
-# }
-
-variable "settings" {
-  description = "ClickHouse performance and storage settings"
-  type        = map(string)
-  default = {
-    max_memory_usage           = "10000000000" # 10GB
-    max_concurrent_queries     = "100"
-    parts_to_throw_insert      = "300"
-    max_partition_size_to_drop = "50000000000"
-    max_table_size_to_drop     = "0" # Disable DROP TABLE by default
-  }
-}
-
-variable "retention" {
-  description = "Data retention settings"
-  type        = map(number)
-  default = {
-    days_to_keep         = 90
-    cleanup_interval_sec = 60
-  }
-}
-
-variable "replication" {
-  description = "Replication settings"
-  type        = map(bool)
-  default = {
-    enabled   = false
-    is_leader = true
-  }
 }
 
 # TYPESCRIPT APP
