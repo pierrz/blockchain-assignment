@@ -24,11 +24,13 @@ jobs:
     needs: check-condition
     if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }} == 'true'
     steps:
-      - name: Run condition check
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.7
+      - name: Run approval timeout mechanism
         uses: ./.github/actions/approval-timeout
         with:
           ENVIRONMENT: production
-          TIMEOUT: 15
+          TIMEOUT_MINUTES: 15
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPO: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}

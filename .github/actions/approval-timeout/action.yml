@@ -7,7 +7,7 @@ author: pierrz
 inputs:
   ENVIRONMENT:
     required: true
-  TIMEOUT:
+  TIMEOUT_MINUTES:
     required: true
   GITHUB_TOKEN:
     required: true
@@ -22,12 +22,10 @@ runs:
     - name: Run approval timeout action
       shell: bash
       run: |
-        ENVIRONMENT_NAME=${{ inputs.ENVIRONMENT }}
-        TIMEOUT_MINUTES=${{ inputs.TIMEOUT }}
-        echo "Waiting $TIMEOUT_MINUTES minutes for approval ..."
+        echo "Waiting ${{ inputs.TIMEOUT_MINUTES }} minutes for approval ..."
 
         # iterative checks every minute
-        for ((i=1; i<=$TIMEOUT_MINUTES; i++)); do
+        for ((i=1; i<=${{ inputs.TIMEOUT_MINUTES }}; i++)); do
 
           if [[ $i -gt 1 ]]; then
             MINUTE_STRING="minutes"
@@ -41,7 +39,7 @@ runs:
           DEPLOYMENT_RESPONSE=$(curl -s \
             -H "Authorization: Bearer ${{ inputs.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ inputs.GITHUB_REPO }}/deployments?environment=$ENVIRONMENT_NAME&per_page=1")
+            "https://api.github.com/repos/${{ inputs.GITHUB_REPO }}/deployments?environment=${{ inputs.ENVIRONMENT }}&per_page=1")
 
           DEPLOYMENT_ID=$(echo "$DEPLOYMENT_RESPONSE" | jq -r '.[0].id')
           STATUS_RESPONSE=$(curl -s \
@@ -50,7 +48,7 @@ runs:
             "https://api.github.com/repos/${{ inputs.GITHUB_REPO }}/deployments/$DEPLOYMENT_ID/statuses")
 
           STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.[0].state')
-          if [[ ($STATUS == "error" || "$STATUS" == "waiting") && $i -lt $TIMEOUT_MINUTES ]]; then
+          if [[ ($STATUS == "error" || "$STATUS" == "waiting") && $i -lt ${{ inputs.TIMEOUT_MINUTES }} ]]; then
             echo "Approval not received yet - keep waiting for it"
           else
             break
