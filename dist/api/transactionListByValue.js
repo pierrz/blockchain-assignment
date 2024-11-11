@@ -1,10 +1,7 @@
-// Transaction List Sorted by Value: 
+// Transaction List Sorted by Value:
 //  --> Return transactions sorted by value (appropriately paginated),
 //  i.e. the amount of $AVAX transferred.
-
-import { clickhouse } from '../dbClient/clickhouseClient.js';
-import { ClickhouseResponse, TransactionPaginatedResult } from './responses.js';
-
+import { clickhouse } from "../dbClient/clickhouseClient.js";
 /**
  * Get a paginated list of transactions for a given address, sorted by value.
  * @param address The address to filter transactions.
@@ -12,9 +9,12 @@ import { ClickhouseResponse, TransactionPaginatedResult } from './responses.js';
  * @param limit The number of transactions per page.
  * @returns List of transactions sorted by value.
  */
-export async function getTransactionsSortedByValue(address: string, page: number = 1, limit: number = 10) {
+export async function getTransactionsSortedByValue(
+  address,
+  page = 1,
+  limit = 10,
+) {
   const offset = (page - 1) * limit;
-
   try {
     const listByValuesQuery = `
         SELECT *
@@ -22,23 +22,34 @@ export async function getTransactionsSortedByValue(address: string, page: number
         WHERE from_address = '${address}' OR to_address = '${address}'
         ORDER BY value DESC
         LIMIT {limit:UInt32} OFFSET {offset:UInt32}
-      `
+      `;
     const resultSet = await clickhouse.query({
       query: listByValuesQuery,
       query_params: {
         address: address,
         limit: limit,
-        offset: offset
-      }
+        offset: offset,
+      },
     });
-
-    return await resultSet.json();
+    // return await resultSet.json();
+    const result = await resultSet.json(),
+      elapsedTime = parseFloat((result.statistics?.elapsed ?? 0).toFixed(6));
+    return {
+      address,
+      page: page,
+      elapsed_time_in_seconds: elapsedTime,
+      data: result.data,
+    };
   } catch (error) {
     console.error("Error querying transactions by value:", error);
-      if (error instanceof Error) {
-        throw new Error(`Failed to retrieve transaction list by value: ${error.message}`);
-      } else {
-        throw new Error("Failed to retrieve transaction list by value: Unknown error");
-      }
+    if (error instanceof Error) {
+      throw new Error(
+        `Failed to retrieve transaction list by value: ${error.message}`,
+      );
+    } else {
+      throw new Error(
+        "Failed to retrieve transaction list by value: Unknown error",
+      );
+    }
   }
 }

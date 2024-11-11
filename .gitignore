@@ -1,8 +1,9 @@
 # Node.js Tools
 node_modules/
 
-# Environment variables
+# Environment variables / Configs
 .env
+terraform/bctk_ssl.conf
 
 # Logs
 logs/

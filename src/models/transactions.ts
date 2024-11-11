@@ -7,76 +7,76 @@
 const transactionTableName = "transactions";
 
 const transactionCSVFields = [
-    "timestamp",
-    "status",
-    "block_number",
-    "tx_index",
-    "from",
-    "to",
-    "value",
-    "gas_limit",
-    "gas_used",
-    "gas_price"
+  "timestamp",
+  "status",
+  "block_number",
+  "tx_index",
+  "from",
+  "to",
+  "value",
+  "gas_limit",
+  "gas_used",
+  "gas_price",
 ];
 
 const transactionFields = [
-    "timestamp",
-    "status",
-    "block_number",
-    "tx_index",
-    "from_address",
-    "to_address",
-    "value",
-    "gas_limit",
-    "gas_used",
-    "gas_price"
+  "timestamp",
+  "status",
+  "block_number",
+  "tx_index",
+  "from_address",
+  "to_address",
+  "value",
+  "gas_limit",
+  "gas_used",
+  "gas_price",
 ];
 
 interface TransactionInterface {
-    timestamp: string;
-    status: boolean;
-    block_number: string;
-    tx_index: string;
-    from_address: string;
-    to_address: string;
-    value: string;
-    gas_limit: string;
-    gas_used: string;
-    gas_price: string;
+  timestamp: string;
+  status: boolean;
+  block_number: string;
+  tx_index: string;
+  from_address: string;
+  to_address: string;
+  value: string;
+  gas_limit: string;
+  gas_used: string;
+  gas_price: string;
 }
 
 type TransactionType = {
-    timestamp: string;
-    status: boolean;
-    block_number: string;
-    tx_index: string;
-    from_address: string;
-    to_address: string;
-    value: string;
-    gas_limit: string;
-    gas_used: string;
-    gas_price: string;
-  };
+  timestamp: string;
+  status: boolean;
+  block_number: string;
+  tx_index: string;
+  from_address: string;
+  to_address: string;
+  value: string;
+  gas_limit: string;
+  gas_used: string;
+  gas_price: string;
+};
 
-  // Create an empty transaction object to use as type reference
-  const transactionTypeReference: TransactionType = {
-    timestamp: '',
-    status: false,
-    block_number: '',
-    tx_index: '',
-    from_address: '',
-    to_address: '',
-    value: '',
-    gas_limit: '',
-    gas_used: '',
-    gas_price: ''
-  };
+// Create an empty transaction object to use as type reference
+const transactionTypeReference: TransactionType = {
+  timestamp: "",
+  status: false,
+  block_number: "",
+  tx_index: "",
+  from_address: "",
+  to_address: "",
+  value: "",
+  gas_limit: "",
+  gas_used: "",
+  gas_price: "",
+};
 
 export {
-    transactionTableName,
-    transactionFields,
-    transactionCSVFields,
-    TransactionInterface,
-    TransactionType,
-    transactionTypeReference
-}
+  transactionTableName,
+  transactionFields,
+  transactionCSVFields,
+  TransactionInterface,
+  TransactionType,
+  transactionTypeReference,
+};

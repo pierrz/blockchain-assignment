@@ -1,0 +1,13 @@
+{
+  "directories": {
+    "dataDir": "/srv/data",
+    "sourceDir": "source",
+    "processedDir": "processed",
+    "failedDir": "failed"
+  },
+  "modes": {
+    "api": true,
+    "import": true,
+    "realtime": true
+  }
+}

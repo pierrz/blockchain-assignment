@@ -1,0 +1,61 @@
+{
+  "name": "avalanche-blockchain-toolkit",
+  "version": "1.0.0",
+  "description": "Typescript components including Real-time transaction monitoring for Avalanche C-Chain and an API to fetch paginated transactions from a ClickHouse database.",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn src/index.ts",
+    "eslint": "eslint . .js,.jsx,.ts,.tsx",
+    "format": "prettier --write ."
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,scss,md}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@clickhouse/client": "^1.7.0",
+    "avalanche-cli": "^2.6.2",
+    "config": "3.3.12",
+    "csv-parse": "^5.5.6",
+    "dotenv": "^16.4.5",
+    "execa": "9.5.1",
+    "express": "^4.21.1",
+    "viem": "^2.21.39"
+  },
+  "devDependencies": {
+    "@eslint/create-config": "^1.4.0",
+    "@eslint/js": "^9.14.0",
+    "@types/config": "^3.3.5",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.8.6",
+    "eslint": "^9.14.0",
+    "globals": "^15.12.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.13.0",
+    "@typescript-eslint/eslint-plugin": "^8.13.0",
+    "@typescript-eslint/parser": "^8.13.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-unused-imports": "^4.1.4"
+  },
+  "author": "Pierre-Edouard Barrault",
+  "license": "MIT"
+}
