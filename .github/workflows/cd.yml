@@ -42,7 +42,7 @@ jobs:
     if: ${{ needs.check-condition.outputs.RUN_DEPLOYMENT }} == 'true'
     environment:
       name: production
-      url: https://bctk.fullofstack.eu
+      url: https://bctk-demo.fullofstack.eu
     
     # TF_VAR_* are variables for Terraform
     env:
