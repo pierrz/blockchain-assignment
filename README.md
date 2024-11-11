@@ -6,17 +6,18 @@ Repository used for the Blockchain technical assignment.
 
 #### Table of Contents
 
-- [Overview](#overview)
-- [Schema](#schema)
+- [Database setup and schema](#database-setup-and-schema)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Dist build](#dist-build)
 - [Deployment with GitHub Actions and Terraform](#deployment-with-github-actions-and-terraform)
-- [APIs](#apis)
+- [API endpoints](#api-endpoints)
+- [Linting + Pre-commit](#linting--pre-commit)
 - [Technical Debt](#technical-debt)
 
 <hr>
 
-### Database setup adn schema
+### Database setup and schema
 
 Cf. [`db/startup_scripts.xml`](db/startup_scripts.xml)
 
