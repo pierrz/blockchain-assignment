@@ -97,11 +97,13 @@ curl -s "http://localhost:3000/transactions/by-value?address=0x9702230A8Ea53601f
 curl -s "http://localhost:3000/transactions/count?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7
 ```
 
+<br>
+
 When fully deployed, you can access the APIs via the following URLs:
 
-- List of transactions: http://localhost:3000/transactions?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&page=2&limit=5
-- List of transactions sorted by value: http://localhost:3000/transactions/by-value?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&page=2&limit=5
-- Transactions count: http://localhost:3000/transactions/count?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7
+- List of transactions: https://bctk-demo.fullofstack.eu/transactions?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&page=2&limit=5
+- List of transactions sorted by value: https://bctk-demo.fullofstack.eu/transactions/by-value?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7&page=2&limit=5
+- Transactions count: https://bctk-demo.fullofstack.eu/transactions/count?address=0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7
 
 <br>
 
