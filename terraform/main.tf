@@ -220,6 +220,7 @@ resource "null_resource" "setup_services" {
       # Wait for Snap readiness
       "echo 'Wait for snap packages to be installed ...'",
       "while [ ! -f /snap/bin/aws ]; do sleep 1; done",
+      "export PATH=$PATH:/snap/bin",
 
       # Install ClickHouse
       "echo 'Installing ClickHouse ...'",
