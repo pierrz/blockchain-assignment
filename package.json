@@ -25,25 +25,25 @@
     "config": "3.3.12",
     "csv-parse": "^5.5.6",
     "dotenv": "^16.4.5",
+    "execa": "9.5.1",
     "express": "^4.21.1",
-    "viem": "^2.21.39",
-    "execa": "9.5.1"
+    "viem": "^2.21.39"
   },
   "devDependencies": {
+    "@eslint/create-config": "^1.4.0",
+    "@eslint/js": "^9.14.0",
     "@types/config": "^3.3.5",
     "@types/express": "^5.0.0",
     "@types/node": "^22.8.6",
+    "eslint": "^9.14.0",
+    "globals": "^15.12.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.6.3",
-    "prettier": "^3.3.3",
-    "eslint": "^9.14.0",
-    "@eslint/create-config": "^1.4.0",
-    "globals": "^15.12.0",
-    "@eslint/js": "^9.14.0",
-    "typescript-eslint": "^8.13.0",
-    "husky": "^9.1.6",
-    "lint-staged": "^15.2.10"
+    "typescript-eslint": "^8.13.0"
   },
   "author": "Pierre-Edouard Barrault",
   "license": "MIT"
