@@ -17,5 +17,6 @@
   "plugins": ["@typescript-eslint"],
   "rules": {
     // Add any custom ESLint rules here
-  }
+  },
+  "ignorePatterns": ["node_modules"]
 }

@@ -8,7 +8,13 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "prepare": "husky install"
+    "eslint": "eslint . .js,.jsx,.ts,.tsx",
+    "format": "prettier --write ."
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
