@@ -1,5 +1,5 @@
-import { createClient } from "@clickhouse/client";
-import dotenv from "dotenv";
+import {createClient} from '@clickhouse/client';
+import dotenv from 'dotenv';
 dotenv.config();
 // Initialize ClickHouse client
 export const clickhouse = createClient({

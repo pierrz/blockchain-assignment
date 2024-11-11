@@ -1,15 +1,15 @@
-import { createReadStream } from "fs";
-import { createGunzip } from "zlib";
-import { parse } from "csv-parse";
-import { join } from "path";
-import { pipeline } from "stream/promises";
-import { importData } from "./utils.js";
-import { Transform } from "stream";
-import config from "config";
+import {createReadStream} from 'fs';
+import {createGunzip} from 'zlib';
+import {parse} from 'csv-parse';
+import {join} from 'path';
+import {pipeline} from 'stream/promises';
+import {importData} from './utils.js';
+import {Transform} from 'stream';
+import config from 'config';
 import {
   transactionTableName,
   transactionCSVFields,
-} from "../models/transactions.js";
+} from '../models/transactions.js';
 export async function importTransactions() {
   async function processTransactions(filePath) {
     const BATCH_SIZE = 10000;
@@ -32,7 +32,7 @@ export async function importTransactions() {
           async transform(row, encoding, callback) {
             try {
               const transaction = {
-                timestamp: row.timestamp.replace(" ", "T"),
+                timestamp: row.timestamp.replace(' ', 'T'),
                 status: Boolean(row.status),
                 block_number: BigInt(row.block_number).toString(),
                 tx_index: BigInt(row.tx_index).toString(),
@@ -68,8 +68,8 @@ export async function importTransactions() {
       throw error;
     }
   }
-  const dataDir = config.get("directories.dataDir"),
-    sourceDir = join(dataDir, config.get("directories.sourceDir"));
+  const dataDir = config.get('directories.dataDir'),
+    sourceDir = join(dataDir, config.get('directories.sourceDir'));
   importData(sourceDir, transactionTableName, processTransactions).catch(
     (error) => {
       console.error(`Failed to import transactions:`, error);

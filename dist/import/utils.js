@@ -1,8 +1,8 @@
-import { rename, mkdir } from "fs";
-import { readdir } from "fs/promises";
-import { join, basename } from "path";
-import { clickhouse } from "../dbClient/clickhouseClient.js";
-import config from "config";
+import {rename, mkdir} from 'fs';
+import {readdir} from 'fs/promises';
+import {join, basename} from 'path';
+import {clickhouse} from '../dbClient/clickhouseClient.js';
+import config from 'config';
 /**
  * Moves a file from source path to a destination directory.
  * Creates the destination directory if it doesn't exist.
@@ -15,7 +15,7 @@ export async function moveFile(sourcePath, destinationDir) {
   const destinationPath = join(destinationDir, basename(sourcePath));
   try {
     await new Promise((resolve, reject) => {
-      mkdir(destinationDir, { recursive: true }, (err) => {
+      mkdir(destinationDir, {recursive: true}, (err) => {
         if (err) reject(err);
         else resolve();
       });
@@ -27,20 +27,20 @@ export async function moveFile(sourcePath, destinationDir) {
       });
     });
   } catch (error) {
-    console.error("Error moving file:", error);
+    console.error('Error moving file:', error);
     throw error;
   }
 }
 export async function importData(sourceDir, tableName, processFunction) {
   let totalProcessed = 0;
-  const dataDir = config.get("directories.dataDir"),
-    processedDir = join(dataDir, config.get("directories.processedDir")),
-    failedDir = join(dataDir, config.get("directories.failedDir"));
+  const dataDir = config.get('directories.dataDir'),
+    processedDir = join(dataDir, config.get('directories.processedDir')),
+    failedDir = join(dataDir, config.get('directories.failedDir'));
   try {
     const files = await readdir(sourceDir);
-    const tarGzFiles = files.filter((file) => file.endsWith(".tar.gz"));
+    const tarGzFiles = files.filter((file) => file.endsWith('.tar.gz'));
     if (tarGzFiles.length === 0) {
-      console.log("No .tar.gz files found in data directory");
+      console.log('No .tar.gz files found in data directory');
       return;
     }
     for (const file of tarGzFiles) {
@@ -53,7 +53,7 @@ export async function importData(sourceDir, tableName, processFunction) {
             await clickhouse.insert({
               table: `blockchain.${tableName}`,
               values: processedData,
-              format: "JSONEachRow",
+              format: 'JSONEachRow',
             });
             console.log(
               `Successfully inserted ${processedData.length} ${tableName}`,
@@ -67,12 +67,12 @@ export async function importData(sourceDir, tableName, processFunction) {
               console.log("File moved to the 'processed' directory.");
             } catch (moveError) {
               console.error(
-                "Error moving file to processed directory:",
+                'Error moving file to processed directory:',
                 moveError,
               );
             }
           } catch (error) {
-            console.error("Error inserting ${tableName}:", error);
+            console.error('Error inserting ${tableName}:', error);
             try {
               await moveFile(filePath, failedDir);
               console.log(
@@ -80,7 +80,7 @@ export async function importData(sourceDir, tableName, processFunction) {
               );
             } catch (moveError) {
               console.error(
-                "Error moving file to failed directory:",
+                'Error moving file to failed directory:',
                 moveError,
               );
             }
@@ -94,7 +94,7 @@ export async function importData(sourceDir, tableName, processFunction) {
             "File moved to the 'failed' directory due to processing error.",
           );
         } catch (moveError) {
-          console.error("Error moving file to failed directory:", moveError);
+          console.error('Error moving file to failed directory:', moveError);
         }
         continue;
       }
@@ -107,7 +107,7 @@ export async function importData(sourceDir, tableName, processFunction) {
       );
     }
   } catch (error) {
-    console.error("Error during import:", error);
+    console.error('Error during import:', error);
     throw error;
   }
 }

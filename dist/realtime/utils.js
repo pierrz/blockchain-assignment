@@ -20,7 +20,7 @@ export async function monitorEvents(
         // Process each transaction in the block
         const timestamp = Number(fullBlock.timestamp);
         const txPromises = fullBlock.transactions.map((tx) => {
-          if (typeof tx === "string") {
+          if (typeof tx === 'string') {
             return processFunction(tx, timestamp);
           }
           return processFunction(tx.hash, timestamp);
@@ -37,12 +37,12 @@ export async function monitorEvents(
         }
       },
       onError: (error) => {
-        console.error("Block watching error:", error);
+        console.error('Block watching error:', error);
       },
     });
     // Handle graceful shutdown
-    process.on("SIGINT", () => {
-      console.log("Shutting down...");
+    process.on('SIGINT', () => {
+      console.log('Shutting down...');
       unwatch();
       process.exit(0);
     });

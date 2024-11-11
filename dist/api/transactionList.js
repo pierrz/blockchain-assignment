@@ -10,7 +10,7 @@
  * @returns List of transactions sorted by blockNumber and transactionIndex (default) or by value,
  *  with additional meta such as address, page number, total_value, page_total_value and elapsed_time_in_seconds
  */
-import { clickhouse } from "../dbClient/clickhouseClient.js";
+import {clickhouse} from '../dbClient/clickhouseClient.js';
 export async function getTransactions(
   address,
   page = 1,
@@ -19,7 +19,7 @@ export async function getTransactions(
 ) {
   const offset = (page - 1) * limit;
   if (!address) {
-    throw new Error("Address parameter is required");
+    throw new Error('Address parameter is required');
   }
   try {
     // total queries
@@ -41,7 +41,7 @@ export async function getTransactions(
       listQuery = `${listQuery} ORDER BY block_number, tx_index`;
     }
     // final queries
-    const queryTail = "LIMIT {limit:UInt32} OFFSET {offset:UInt32}";
+    const queryTail = 'LIMIT {limit:UInt32} OFFSET {offset:UInt32}';
     listQuery = `${listQuery} ${queryTail}`;
     totalValueByPageQuery = `${totalValueByPageQuery} ${queryTail}`;
     // Get data from DB
@@ -52,7 +52,7 @@ export async function getTransactions(
           offset: offset,
         },
       }),
-      totalSet = await clickhouse.query({ query: totalValueQuery }),
+      totalSet = await clickhouse.query({query: totalValueQuery}),
       totalByPageSet = await clickhouse.query({
         query: totalValueByPageQuery,
         query_params: {
@@ -76,11 +76,11 @@ export async function getTransactions(
       data: result.data,
     };
   } catch (error) {
-    console.error("Error counting transactions:", error);
+    console.error('Error counting transactions:', error);
     if (error instanceof Error) {
       throw new Error(`Failed to retrieve transaction list: ${error.message}`);
     } else {
-      throw new Error("Failed to retrieve transaction list: Unknown error");
+      throw new Error('Failed to retrieve transaction list: Unknown error');
     }
   }
 }

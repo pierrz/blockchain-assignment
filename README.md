@@ -103,9 +103,19 @@ curl -s "http://localhost:3000/transactions/count?address=0x9702230A8Ea53601f5cD
 
 <br>
 
-### Linting
+### Linting + Pre-commit
 
-Until linting is automatically done via `precommit`, you should run the command:
+Run this command to set up `pre-commit`:
+
+```
+npx husky init
+tee .husky/pre-commit << EOF
+  #!/usr/bin/env sh
+  npx lint-staged
+EOF
+```
+
+Or run this to enforce linting manually:
 
 ```
 npx eslint . --fix
@@ -119,4 +129,4 @@ npx prettier --write .
 - Implement complete authentication for ClicHouse in Compose setup (Terraform OK)
 - Multithreading and improved error handling for the Realtime mode.
 - Tests for the Typescript components
-- Linting, coverage
+- Coverage

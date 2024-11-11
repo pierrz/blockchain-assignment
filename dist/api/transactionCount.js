@@ -5,10 +5,10 @@
  * @param address The address to filter transactions.
  * @returns Object containing address, transaction count and query elapsed time.
  */
-import { clickhouse } from "../dbClient/clickhouseClient.js";
+import {clickhouse} from '../dbClient/clickhouseClient.js';
 export async function getTransactionCount(address) {
   if (!address) {
-    throw new Error("Address parameter is required");
+    throw new Error('Address parameter is required');
   }
   try {
     const countQuery = `
@@ -40,11 +40,11 @@ export async function getTransactionCount(address) {
       elapsed_time_in_seconds: elapsedTime,
     };
   } catch (error) {
-    console.error("Error counting transactions:", error);
+    console.error('Error counting transactions:', error);
     if (error instanceof Error) {
       throw new Error(`Failed to retrieve transaction count: ${error.message}`);
     } else {
-      throw new Error("Failed to retrieve transaction count: Unknown error");
+      throw new Error('Failed to retrieve transaction count: Unknown error');
     }
   }
 }

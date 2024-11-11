@@ -1,55 +1,55 @@
-import { execa } from "execa";
+import {execa} from 'execa';
 export async function restartServices() {
   try {
     restartDatabase();
     await execa(
-      "sudo",
+      'sudo',
       [
-        "service",
-        "nginx",
-        "restart",
-        "&&",
-        "service",
-        "blockchain-app",
-        "restart",
+        'service',
+        'nginx',
+        'restart',
+        '&&',
+        'service',
+        'blockchain-app',
+        'restart',
       ],
       {
-        stdio: "inherit",
+        stdio: 'inherit',
       },
     );
-    console.log("Blockchain app and Nginx restarted successfully.");
+    console.log('Blockchain app and Nginx restarted successfully.');
     return {
-      services: "nginx,database,blockchain-app",
-      status: "restarted",
+      services: 'nginx,database,blockchain-app',
+      status: 'restarted',
     };
   } catch (error) {
-    console.error("Error restarting services:", error);
+    console.error('Error restarting services:', error);
     if (error instanceof Error) {
       throw new Error(`Failed to restart services: ${error.message}`);
     } else {
-      throw new Error("Failed to restart services: Unknown error");
+      throw new Error('Failed to restart services: Unknown error');
     }
   }
 }
 export async function restartDatabase() {
   try {
-    await execa("sudo", ["service", "clickhouse-server", "restart"], {
-      stdio: "inherit",
+    await execa('sudo', ['service', 'clickhouse-server', 'restart'], {
+      stdio: 'inherit',
     });
-    await execa("sudo", ["service", "clickhouse-keeper", "restart"], {
-      stdio: "inherit",
+    await execa('sudo', ['service', 'clickhouse-keeper', 'restart'], {
+      stdio: 'inherit',
     });
-    console.log("Database restarted successfully");
+    console.log('Database restarted successfully');
     return {
-      services: "database",
-      status: "restarted",
+      services: 'database',
+      status: 'restarted',
     };
   } catch (error) {
-    console.error("Error restarting database:", error);
+    console.error('Error restarting database:', error);
     if (error instanceof Error) {
       throw new Error(`Failed to restart database: ${error.message}`);
     } else {
-      throw new Error("Failed to restart database: Unknown error");
+      throw new Error('Failed to restart database: Unknown error');
     }
   }
 }
