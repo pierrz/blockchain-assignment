@@ -1,4 +1,5 @@
 # CD pipeline with timeout based cancellation logic to deploy the code on a brand new Scaleway instance
+
 name: CD pipeline
 
 on:
